@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Make a Reservation</h1>
+    <form method="POST" action="{{ url_for('booking') }}">
+        {{ form.csrf_token }}
+        {{ form.number_of_people.label }} {{ form.number_of_people }}
+        {{ form.check_in_date.label }} {{ form.check_in_date }}
+        {{ form.check_out_date.label }} {{ form.check_out_date }}
+        {{ form.room_type.label }} {{ form.room_type }}
+        {{ form.specially_enabled_room_required.label }} {{ form.specially_enabled_room_required }}
+        {{ form.comments.label }} {{ form.comments }}
+        {{ form.submit }}
+    </form>
+{% endblock %}

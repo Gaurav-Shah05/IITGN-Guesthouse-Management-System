@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Check-in</h1>
+    <form method="POST" action="{{ url_for('check_in') }}">
+        {{ form.csrf_token }}
+        {{ form.first_name.label }} {{ form.first_name }}
+        {{ form.last_name.label }} {{ form.last_name }}
+        {{ form.age.label }} {{ form.age }}
+        {{ form.street.label }} {{ form.street }}
+        {{ form.state.label }} {{ form.state }}
+        {{ form.pincode.label }} {{ form.pincode }}
+        {{ form.country.label }} {{ form.country }}
+        {{ form.phone_no.label }} {{ form.phone_no }}
+        {{ form.guest_category.label }} {{ form.guest_category }}
+        {{ form.visit_purpose.label }} {{ form.visit_purpose }}
+        {{ form.iitgn_id.label }} {{ form.iitgn_id }}
+        {{ form.submit }}
+    </form>
+{% endblock %}
