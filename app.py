@@ -139,6 +139,20 @@ def travel_request():
     form = TravelRequestForm()
     if form.validate_on_submit():
         # Handle travel request form submission
+        highest_id = db.session.query(db.func.max(TravelRequest.travel_request_id)).scalar()
+        if highest_id is None:
+            highest_id = 0
+        travel_request = TravelRequest(
+            travel_request_id=highest_id + 1,
+            number_of_travellers=form.number_of_travellers.data,
+            date_of_travel=form.date_of_travel.data,
+            pick_up_time=form.pick_up_time.data,
+            destination=form.destination.data,
+            travel_purpose=form.travel_purpose.data
+        )
+
+        db.session.add(travel_request)
+        db.session.commit()
         flash('Travel request submitted successfully!', 'success')
         return redirect(url_for('travel_request'))
     return render_template('travel_request.html', form=form)
