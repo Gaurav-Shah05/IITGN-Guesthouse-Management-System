@@ -2,12 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from forms import BookingForm, CheckInForm, CheckOutForm, MaintenanceRequestForm, TravelRequestForm, LoginForm, RegistrationForm
-from models import db, CurrentGuest, Room, HospitalityStaff, iitgn_member, Reservation, Bill, HousekeepingStaff, MaintenanceRequest, PastGuests, Feedback, TravelRequest, Driver, Booking, Assignment, RequiresMaintenance, ManagesMaintenance, ManagesReservation, IncursBill, Makes, GeneratesBill, InitiatedTravelRequest
+from models import db, current_guest, Room, hospitality_staff, iitgn_member, Reservation, Bill, HousekeepingStaff, MaintenanceRequest, PastGuests, Feedback, TravelRequest, Driver, Booking, Assignment, RequiresMaintenance, ManagesMaintenance, ManagesReservation, IncursBill, Makes, GeneratesBill, InitiatedTravelRequest
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'abc'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://root:<password>@localhost/guesthouse'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://root:asterix@localhost/guesthouse_db'
 
 db.init_app(app)
 
@@ -26,18 +26,30 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         print(form.email.data)
-        user = iitgn_member.query.filter_by(email_id=form.email.data).first()
-        print(user)
-        if user and user.password == form.password.data:
+        user = hospitality_staff.query.filter_by(email_id=form.email.data).first()
+        if user is not None and user.password == form.password.data:
             login_user(user)
-        # Show a pop up message on the login page saying login successful
+            current_user.role = 'hospitality_staff';
             flash('Login successful!', 'success')
-        #redirect to the index page
-            return redirect(url_for('index'))
-
-        else:
-            print(form.errors)
-            
+            return redirect(url_for('hospitality_staff_dashboard'))
+        
+        user = current_guest.query.filter_by(email_id=form.email.data).first()
+        if user is not None and user.password == form.password.data:
+            login_user(user)
+            current_user.role = 'current_guest';
+            flash('Login successful!', 'success')
+            return redirect(url_for('current_guest_dashboard'))
+        
+        user = iitgn_member.query.filter_by(email_id=form.email.data).first()
+        if user is not None and user.password == form.password.data:
+            login_user(user)
+            current_user.role = 'iitgn_member';
+            flash('Login successful!', 'success')
+            return redirect(url_for('iitgn_member_dashboard'))
+        
+        flash('Invalid Credentials', 'danger')
+        return redirect(url_for('login'))
+    
     return render_template('login.html', form=form)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -64,6 +76,22 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('index'))
+
+
+@app.route('/current_guest_dashboard')
+@login_required
+def current_guest_dashboard():
+    return render_template('current_guest_dashboard.html')
+
+@app.route('/hospitality_staff_dashboard')
+@login_required
+def hospitality_staff_dashboard():
+    return render_template('hospitality_staff_dashboard.html')
+
+@app.route('/iitgn_member_dashboard')
+@login_required
+def iitgn_member_dashboard():
+    return render_template('iitgn_member_dashboard.html')
 
 @app.route('/booking', methods=['GET', 'POST'])
 @login_required
@@ -115,10 +143,6 @@ def travel_request():
         return redirect(url_for('travel_request'))
     return render_template('travel_request.html', form=form)
 
-@app.route('/home')
-@login_required
-def home():
-    return render_template('home.html')
 
 if __name__ == '__main__':
     with app.app_context():

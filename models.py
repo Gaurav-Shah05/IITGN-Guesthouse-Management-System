@@ -3,8 +3,7 @@ from flask_login import UserMixin
 
 db = SQLAlchemy()
 
-
-class CurrentGuest(db.Model):
+class current_guest(db.Model):
     guest_id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(20), nullable=False)
     last_name = db.Column(db.String(20), nullable=False)
@@ -18,6 +17,18 @@ class CurrentGuest(db.Model):
     visit_purpose = db.Column(db.String(100))
     iitgn_id = db.Column(db.Integer, db.ForeignKey('iitgn_member.iitgn_id'))
     room_no = db.Column(db.Integer, db.ForeignKey('room.room_no'))
+    email_id = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(20), nullable=True)
+    role = 'current_guest'
+
+
+    @property
+    def is_active(self):
+        # Replace with your logic for checking if the account is active
+        return True
+    
+    def get_id(self):
+        return str(self.guest_id)
 
 class Room(db.Model):
     room_no = db.Column(db.Integer, primary_key=True)
@@ -26,7 +37,7 @@ class Room(db.Model):
     room_rent = db.Column(db.Integer, nullable=False)
     intercom_number = db.Column(db.String(10), unique=True)
 
-class HospitalityStaff(db.Model):
+class hospitality_staff(db.Model):
     hospitality_staff_id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(20), nullable=False)
     last_name = db.Column(db.String(20), nullable=False)
@@ -37,6 +48,19 @@ class HospitalityStaff(db.Model):
     staff_type = db.Column(db.String(50))
     salary = db.Column(db.Numeric)
     shift_time = db.Column(db.String(10))
+    email_id = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(20), nullable=True)
+    role = 'hospitality_staff'
+
+    @property
+    def is_active(self):
+        # Replace with your logic for checking if the account is active
+        return True
+    
+    def get_id(self):
+        return str(self.hospitality_staff_id)
+    
+    
 
 class iitgn_member(db.Model , UserMixin):
     iitgn_id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +70,7 @@ class iitgn_member(db.Model , UserMixin):
     email_id = db.Column(db.String(100), unique=True)
     contact_no = db.Column(db.String(20), unique=True)
     password = db.Column(db.String(20), nullable=True)
+    role = 'iitgn_member'
 
     @property
     def is_active(self):

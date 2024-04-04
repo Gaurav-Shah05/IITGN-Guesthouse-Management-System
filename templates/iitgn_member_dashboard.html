@@ -9,16 +9,7 @@
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
-            {% if current_user.is_authenticated  and current_user.role == "hospitality_staff" %}
-                {% include 'hospitality_staff_dashboard.html' %} 
-            {% elif current_user.is_authenticated  and current_user.role == "iitgn_member" %}
-                {% include 'iitgn_member_dashboard.html' %}
-            {% elif current_user.is_authenticated  and current_user.role == "current_guest" %}
-                {% include 'current_guest_dashboard.html' %}
-            {% else %}
-                <li><a href="{{ url_for('login') }}">Login</a></li>
-                <li><a href="{{ url_for('register') }}">Register</a></li>
-            {% endif %}
+            <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </nav>
     <main>
@@ -30,8 +21,7 @@
             {% endif %}
         {% endwith %}
         {% block content %}
-            <h1>Welcome to the Guesthouse Management System</h1>
-            <p>Please login or register to access the system.</p>
+            <h1>Landed on iitgn_member dashboard!</h1>
         {% endblock %}
     </main>
     <script src="{{ url_for('static', filename='../static/scripts.js') }}"></script>

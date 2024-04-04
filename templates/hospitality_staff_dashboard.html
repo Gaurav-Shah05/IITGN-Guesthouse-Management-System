@@ -9,17 +9,9 @@
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Home</a></li>
-            {% if current_user.is_authenticated %}
-            <li><a href="{{ url_for('booking') }}">Make a Reservation</a></li>
-            <li><a href="{{ url_for('check_in') }}">Check-in</a></li>
-            <li><a href="{{ url_for('check_out') }}">Check-out</a></li>
-            <li><a href="{{ url_for('maintenance_request') }}">Maintenance Request</a></li>
             <li><a href="{{ url_for('travel_request') }}">Travel Request</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
-            {% else %}
-            <li><a href="{{ url_for('login') }}">Login</a></li>
-            <li><a href="{{ url_for('register') }}">Register</a></li>
-            {% endif %}
+
         </ul>
     </nav>
     <main>
@@ -30,8 +22,13 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-        {% block content %}{% endblock %}
+        {% block content %}
+            <h1>Landed on hospitality_staff dashboard!</h1>
+        {% endblock %}
+
     </main>
     <script src="{{ url_for('static', filename='../static/scripts.js') }}"></script>
 </body>
 </html>
+
+
