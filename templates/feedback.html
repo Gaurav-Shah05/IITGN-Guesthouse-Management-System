@@ -1,0 +1,43 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+<h2>
+    <title>Feedbacks</title>
+</h2>
+<body>
+    <h1>Feedbacks</h1>
+    
+    <form action="" method="POST">
+        <label for="sort">Sort by:</label>
+        <select name="sort" id="sort">
+            <option value="date_asc">Date (Ascending)</option>
+            <option value="date_desc">Date (Descending)</option>
+            <option value="rating_asc">Rating (Ascending)</option>
+            <option value="rating_desc">Rating (Descending)</option>
+        </select>
+        <button href="{{ url_for('hospitality_staff_dashboard.feedback') }}" type="submit" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Sort</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Rating</th>
+                <th>Feedback</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+                <tr>
+                    <td>{{ feedback.feedback_id }}</td>
+                    <td>{{ feedback.date }}</td>
+                    <td>{{ feedback.star_rating }}</td>
+                    <td>{{ feedback.feedback }}</td>
+
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+
+{% endblock %}

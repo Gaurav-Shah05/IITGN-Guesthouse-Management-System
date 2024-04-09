@@ -29,11 +29,74 @@
 
             <h3>Your Wifi Password is : {{ assignment.wifi_password }}</h3>
 
-            <h3> Open Travel Requests </h3>
+            <h3> Unassigned Travel Requests </h3>
+            {% if unassigned_travel_Request %}
+            <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center;">    
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Travel request ID</th>
+                            <th>No of travellers</th>
+                            <th>Date of travel</th>
+                            <th>Pick up time</th>
+                            <th>Destination</th>
+                            <th>Travel purpose</th>
+                            <th>Driver license</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for travel in unassigned_travel_Request %}
+                            <tr>
+                                <td style="text-align: center;">{{ travel.travel_request_id }}</td>
+                                <td>{{ travel.number_of_travellers }}</td>
+                                <td>{{ travel.date_of_travel }}</td>
+                                <td>{{ travel.pick_up_time }}</td>
+                                <td>{{ travel.destination }}</td>
+                                <td>{{ travel.travel_purpose }}</td>
+                                <td>{{ travel.driver_license }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p>No unassigned travel requests.</p>
+            {% endif %}
 
-            <h3> Closed Travel Requests </h3>
+            {% if assigned_travel_Request %}
+            <h3> Assigned Travel Requests </h3>
+            <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center;">    
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Travel request ID</th>
+                            <th>No of travellers</th>
+                            <th>Date of travel</th>
+                            <th>Pick up time</th>
+                            <th>Destination</th>
+                            <th>Travel purpose</th>
+                            <th>Driver license</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for travel in assigned_travel_Request %}
+                            <tr>
+                                <td style="text-align: center;">{{ travel.travel_request_id }}</td>
+                                <td>{{ travel.number_of_travellers }}</td>
+                                <td>{{ travel.date_of_travel }}</td>
+                                <td>{{ travel.pick_up_time }}</td>
+                                <td>{{ travel.destination }}</td>
+                                <td>{{ travel.travel_purpose }}</td>
+                                <td>{{ travel.driver_license }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
-
+            {% else %}
+                <p>No assigned travel requests.</p>
+            {% endif %}
 
         {% endblock %}
     </main>

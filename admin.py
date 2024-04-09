@@ -550,13 +550,12 @@ def billing():
         incurs_bills = IncursBill.query.filter(IncursBill.guest_id == guest_id).all()
         
         if incurs_bills:
-            bill_entries = []
-            for incurs_bill in incurs_bills:
-                bill_id = incurs_bill.bill_id
-                bill_entries += Bill.query.filter_by(bill_id=bill_id, paid_status='0').all()
-                total_amount = sum(bill_entry.amount for bill_entry in bill_entries)
+            paid_bills = Bill.query.filter(Bill.bill_id.in_([bill.bill_id for bill in incurs_bills]), Bill.paid_status == '1').all()
+            unpaid_bills = Bill.query.filter(Bill.bill_id.in_([bill.bill_id for bill in incurs_bills]), Bill.paid_status == '0').all()
+            total_unpaid_amount = sum(bill.amount for bill in unpaid_bills)
+            total_paid_amount = sum(bill.amount for bill in paid_bills)
             flash(f'Bill generated successfully! for guest_id = {guest_id}', 'success')
-            return render_template('bill_entries.html', bill_entries=bill_entries, total_amount=total_amount)
+            return render_template('bill_entries.html', paid_bills=paid_bills, total_unpaid_amount=total_unpaid_amount, total_paid_amount = total_paid_amount, guest_id=guest_id, unpaid_bills=unpaid_bills)
         else:
             flash('No bill found for the given guest ID!', 'danger')
             return redirect(url_for('hospitality_staff_dashboard.billing'))
@@ -569,6 +568,12 @@ def create_bill():
     
     form = billForm()
 
+    paid_status=form.paid_status.data
+    if paid_status == 1:
+        paid_status = True
+    else:   
+        paid_status = False
+
     if form.validate_on_submit():
 
         highest_id = db.session.query(db.func.max(Bill.bill_id)).scalar()
@@ -579,15 +584,53 @@ def create_bill():
             amount = form.amount.data,
             bill_type = form.bill_type.data,
             payment_method = form.payment_method.data,
-            paid_status='0',
+            paid_status = paid_status,
             generated_by = form.generated_by.data,
             description = form.description.data
         )
         db.session.add(new_bill)
+        db.session.flush() 
+        incurs_bill = IncursBill(
+            guest_id = form.guest_id.data,
+            bill_id = highest_id + 1
+        ) 
+        db.session.add(incurs_bill)
         db.session.commit()
-        flash(f'Bill created successfully! Bill ID: {bill_id}', 'success')
+
+        bill = Bill.query.filter(Bill.bill_id == highest_id + 1).first()
+        print(bill)
+        flash(f'Bill created successfully! Bill ID: {highest_id + 1}', 'success')
         return redirect(url_for('hospitality_staff_dashboard.create_bill'))
+    
+    else:
+        print(form.errors)
     
     return render_template('create_bill.html', form=form)
 
+@admin.route('/hospitality_staff_dashboard/pay_bill/<int:bill_id>', methods=['GET', 'POST'])    
+@login_required
+def pay_bill(bill_id):
+    bill = Bill.query.get_or_404(bill_id)
+    bill.paid_status = True
+    db.session.commit()
+    flash('Bill marked as paid!', 'success')
+    return redirect(url_for('hospitality_staff_dashboard.billing'))
 
+
+# ROUTES FOR FEEDBACK
+
+@admin.route('/hospitality_staff_dashboard/feedback', methods=['GET', 'POST'])
+def feedback():
+    if request.method == 'POST':
+       sorting_method = request.form['sort']
+    else:
+        sorting_method = 'date_desc'
+    if sorting_method == 'date_desc':
+        feedbacks = Feedback.query.order_by(Feedback.date.desc()).all()
+    elif sorting_method == 'date_asc':
+        feedbacks = Feedback.query.order_by(Feedback.date.asc()).all()
+    elif sorting_method == 'rating_desc':
+        feedbacks = Feedback.query.order_by(Feedback.star_rating.desc()).all()
+    elif sorting_method == 'rating_asc':
+        feedbacks = Feedback.query.order_by(Feedback.star_rating.asc()).all()
+    return render_template('feedback.html', feedbacks=feedbacks)

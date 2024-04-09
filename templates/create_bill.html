@@ -3,10 +3,13 @@
 {% block content %}
     <h1>Create Bill</h1>
     <form method="POST">
-        {{ form.hidden_tag() }}
+    
+        {{ form.csrf_token }}
         <p>
-            {{ form.amount.label }}<br>
-            {{ form.amount(size=32) }}
+        {{ form.guest_id.label}}{{ form.guest_id }}
+        </p>
+        <p>
+        {{ form.amount.label }}{{ form.amount }}
         </p>
         <p>
             {{ form.bill_type.label }}
@@ -18,8 +21,12 @@
             </select>
         </p>
         <p>
+            {{ form.paid_status.label }}{{ form.paid_status}}
+        </p>
+        <p>
             {{ form.payment_method.label }}<br>
             <select name="{{ form.payment_method.name }}">
+                <option value="" selected disabled>Select payment method</option>
                 <option value="Cash">Cash</option>
                 <option value="Debit Card">Debit Card</option>
                 <option value="Credit Card">Credit Card</option>
@@ -35,6 +42,6 @@
             {{ form.description.label }}<br>
             {{ form.description(size=32) }}
         </p>
-        <p>{{ form.submit() }}</p>
+        <p> {{ form.submit() }}</p>
     </form>
 {% endblock %}

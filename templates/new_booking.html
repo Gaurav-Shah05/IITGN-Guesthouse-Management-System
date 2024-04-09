@@ -21,8 +21,7 @@
 <div id="reservationForm" style="display: none;">
 
     <form method="POST" action="{{ url_for('iitgn_member_dashboard.new_booking') }}">
-        {{ form.csrf_token }}
-        {{ form.iitgn_id.label }}{{ form.iitgn_id }}
+        {{ form.csrf_token }} 
         {{ form.email_id.label }} {{ form.email_id }}
         {{ form.number_of_people.label }} {{ form.number_of_people }}
         {{ form.check_in_date.label }} {{ form.check_in_date }}

@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, app
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from forms import BookingForm, CheckInForm, CheckOutForm, MaintenanceRequestForm, TravelRequestForm, LoginForm, RegistrationForm
-from models import db, current_guest, Room, hospitality_staff, iitgn_member, Reservation, Bill, housekeeping_staff, maintenance_request, PastGuests, Feedback, driver, Assignment, RequiresMaintenance, ManagesMaintenance, ManagesReservation, IncursBill, Makes, GeneratesBill, InitiatedTravelRequest
+from models import db, current_guest, Room, hospitality_staff, iitgn_member, travel_request, Reservation, Bill, housekeeping_staff, maintenance_request, PastGuests, Feedback, driver, Assignment, RequiresMaintenance, ManagesMaintenance, ManagesReservation, IncursBill, Makes, GeneratesBill, InitiatedTravelRequest
+from datetime import datetime
 from admin import admin
 from member import member
 from guest import guest
@@ -118,8 +119,19 @@ def current_guest_dashboard():
     assignment = Assignment.query.filter_by(room_no = current_guest_pass.room_no).first()
     print(assignment)
 
+    initiated_travel_request = InitiatedTravelRequest.query.filter_by(guest_id = id).all()
+    unassigned_travel_Request = []
+    assigned_travel_Request = []
+    
+    for initiated_travel_request in initiated_travel_request:
+        
+        unassigned_travel_Request += travel_request.query.filter(travel_request.date_of_travel >= datetime.today().date(),
+            travel_request.travel_request_id == initiated_travel_request.travel_request_id, travel_request.driver_license == None).all()
+        assigned_travel_Request += travel_request.query.filter(travel_request.date_of_travel >= datetime.today().date(),
+            travel_request.travel_request_id == initiated_travel_request.travel_request_id, travel_request.driver_license != None).all()
+
     if first_login == False:
-        return render_template('current_guest_dashboard.html', currentguest=current_guest_pass, assignment = assignment)
+        return render_template('current_guest_dashboard.html', currentguest=current_guest_pass, assignment = assignment, unassigned_travel_Request=unassigned_travel_Request, assigned_travel_Request=assigned_travel_Request)
     else:
         return redirect(url_for('current_guest_dashboard.first_login'))
 
