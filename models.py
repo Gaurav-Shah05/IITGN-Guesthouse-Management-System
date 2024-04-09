@@ -17,8 +17,9 @@ class current_guest(db.Model):
     visit_purpose = db.Column(db.String(100))
     iitgn_id = db.Column(db.Integer, db.ForeignKey('iitgn_member.iitgn_id'))
     room_no = db.Column(db.Integer, db.ForeignKey('room.room_no'))
-    email_id = db.Column(db.String(100), unique=True)
+    email_id = db.Column(db.String(100), nullable=True, unique=True)
     password = db.Column(db.String(20), nullable=True)
+    first_login = db.Column(db.Boolean)
     role = 'current_guest'
 
 
@@ -89,6 +90,10 @@ class Reservation(db.Model):
     room_type = db.Column(db.String(10))
     specially_enabled_room_required = db.Column(db.Boolean)
     comments = db.Column(db.Text)
+    email_id = db.Column(db.String(100), unique=True)
+    checked_in = db.Column(db.Boolean)
+    checked_out = db.Column(db.Boolean)
+    iitgn_id = db.Column(db.Integer, db.ForeignKey('iitgn_member.iitgn_id'))
 
 class Bill(db.Model):
     bill_id = db.Column(db.Integer, primary_key=True)
@@ -101,7 +106,7 @@ class Bill(db.Model):
     generated_by = db.Column(db.String(30))
     description = db.Column(db.Text)
 
-class HousekeepingStaff(db.Model):
+class housekeeping_staff(db.Model):
     housekeeping_staff_id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(20), nullable=False)
     last_name = db.Column(db.String(20), nullable=False)
@@ -112,8 +117,20 @@ class HousekeepingStaff(db.Model):
     pincode = db.Column(db.Integer)
     salary = db.Column(db.Numeric)
     shift_time = db.Column(db.String(10))
+    email_id = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(20), nullable=True)
 
-class MaintenanceRequest(db.Model):
+    @property
+    def is_active(self):
+        # Replace with your logic for checking if the account is active
+        return True
+    
+    def get_id(self):
+        return str(self.housekeeping_staff_id)
+
+
+
+class maintenance_request(db.Model):
     request_id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.Text)
     status = db.Column(db.String(50))
@@ -144,30 +161,36 @@ class Feedback(db.Model):
     feedback = db.Column(db.Text)
     past_guest_id = db.Column(db.Integer, db.ForeignKey('past_guests.past_guest_id'), nullable=True)
 
-class TravelRequest(db.Model):
+class travel_request(db.Model):
     travel_request_id = db.Column(db.Integer, primary_key=True)
     number_of_travellers = db.Column(db.Integer)
-    date_of_travel = db.Column(db.Date, nullable=False)
+    date_of_travel = db.Column(db.DateTime, nullable=False)
     pick_up_time = db.Column(db.Time, nullable=False)
     destination = db.Column(db.String(100), nullable=False)
     travel_purpose = db.Column(db.String(100), nullable=False)
     driver_license = db.Column(db.String(20), db.ForeignKey('driver.driver_license'), nullable=True)
 
-class Driver(db.Model):
+class driver(db.Model):
     driver_license = db.Column(db.String(20), primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    first_name = db.Column(db.String(20), nullable=False)
+    last_name = db.Column(db.String(20), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     agency = db.Column(db.String(100))
     car_description = db.Column(db.String(100))
     phone_number = db.Column(db.String(20), unique=True)
     experience = db.Column(db.Integer)
+    email_id = db.Column(db.String(100), unique=True)
+    password = db.Column(db.String(20), nullable=True)
+
+    @property
+    def is_active(self):
+        # Replace with your logic for checking if the account is active
+        return True
+    
+    def get_id(self):
+        return str(self.driver_license)
 
 # Relationship tables
-class Booking(db.Model):
-    guest_id = db.Column(db.Integer, db.ForeignKey('current_guest.guest_id'), primary_key=True)
-    reservation_id = db.Column(db.Integer, db.ForeignKey('reservation.reservation_id'))
-    early_check_in = db.Column(db.Boolean)
-    late_check_out = db.Column(db.Boolean)
 
 class Assignment(db.Model):
     room_no = db.Column(db.Integer, db.ForeignKey('room.room_no'), primary_key=True)
@@ -195,7 +218,7 @@ class IncursBill(db.Model):
 class Makes(db.Model):
     reservation_id = db.Column(db.Integer, db.ForeignKey('reservation.reservation_id'), primary_key=True)
     iitgn_id = db.Column(db.Integer, db.ForeignKey('iitgn_member.iitgn_id'))
-    comments = db.Column(db.Text, nullable=False)
+
 
 class GeneratesBill(db.Model):
     bill_id = db.Column(db.Integer, db.ForeignKey('bill.bill_id'), primary_key=True)

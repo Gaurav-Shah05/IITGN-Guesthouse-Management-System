@@ -1,0 +1,44 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %}
+
+<h2>Assign the Maintenance Requests</h2>
+
+<div style="overflow: auto; max-height: 400px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Staff ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Shift Time</th>
+                <th>Pending Requests</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for staff in housekeeping_staff %}
+            <tr>
+                <td style="text-align: center;">{{ staff.housekeeping_staff_id }}</td>
+                <td>{{ staff.first_name }}</td>
+                <td>{{ staff.last_name }}</td>
+                <td>{{ staff.shift_time }}</td>
+                <td>{{ open_requests_by_staff_id[loop.index0] }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.maintenance_request_assign', request_id=request_id, staff_id = staff.housekeeping_staff_id) }}">
+                        <input type="submit" value="Assign">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<button onclick="goBack()">Go Back</button>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+{% endblock %}

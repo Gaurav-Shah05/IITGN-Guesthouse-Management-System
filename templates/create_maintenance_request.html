@@ -1,0 +1,34 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %}
+<button onclick="goBack()">Go Back</button>
+
+
+{% if closed_maintenance_requests %}
+<h2>Closed Maintenance Requests</h2>
+<div style="overflow: auto; max-height: 600px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in closed_maintenance_requests %}
+            <tr>
+                <td style="text-align: center;">{{ request.request_id }}</td>
+                <td>{{ request.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+{% endblock %}

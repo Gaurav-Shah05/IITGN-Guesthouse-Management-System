@@ -1,0 +1,44 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %}
+
+{% if completed_travel_requests %}
+<h2>Completed Travel Requests</h2>
+<div style="overflow: auto; max-height: 600px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Number of Travellers</th>
+                <th>Date of Travel</th>
+                <th>Travel Purpose</th>
+                <th>Driver Licence</th>
+                <th>Pick-up Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in closed_maintenance_requests %}
+            <tr>
+                <td style="text-align: center;">{{ request.travel_request_id }}</td>
+                <td>{{ request.number_of_travellers }}</td>
+                <td>{{ request.date_of_travel }}</td>
+                <td>{{ request.travel_purpose }}</td>
+                <td>{{ request.driver_licence }}</td>
+                <td>{{ request.pick_up_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No completed travel requests yet.</p>
+{% endif %}
+
+
+<button onclick="goBack()">Go Back</button>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+{% endblock %}

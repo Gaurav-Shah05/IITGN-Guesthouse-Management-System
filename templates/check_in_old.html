@@ -1,0 +1,75 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+<h1>Check-In</h1>
+
+<h2>Today's Reservations</h2>
+{% if reservations %}
+<div style="max-height: 300px; overflow-y: scroll;">
+    <table>
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>IIT Gandhinagar ID</th>
+                <th>Check-Out Date</th>
+                <th>Email</th>
+                <th>Number of People</th>
+                <th>Room Type</th>
+                <th>Specially Abled Room Needed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.reservation_id }}</td>
+                <td>{{ reservation.iitgn_id }}</td>
+                <td>{{ reservation.check_out_date }}</td>
+                <td>{{ reservation.email_id }}</td>
+                <td>{{ reservation.number_of_people }}</td>
+                <td>{{ reservation.room_type }}</td>
+                <td>{{ reservation.specially_enabled_room_required }}</td>
+                <td>
+                    <form method="post">
+                        <input type="hidden" name="reservation_id" value="{{ reservation.id }}">
+                        <input type="submit" name="add_guest" value="Add Guest">
+                    </form>
+                </td>
+            </tr>
+            {% if request.form and request.form['reservation_id'] == reservation.reservation_id|string %}
+            <tr>
+                <td colspan="7">
+                    <form method="post">
+                        {{ check_in_form.hidden_tag() }}
+                        {{ check_in_form.first_name.label }} {{ check_in_form.first_name() }}
+                        {{ check_in_form.last_name.label }} {{ check_in_form.last_name() }}
+                        {{ check_in_form.age.label }}{{ check_in_form.age() }}
+                        {{ check_in_form.street.label }}{{ check_in_form.street() }}
+                        {{ check_in_form.state.label }}{{ check_in_form.state() }}
+                        {{ check_in_form.country.label }}{{ check_in_form.country() }}
+                        {{ check_in_form.pincode.label }}{{ check_in_form.pincode() }}
+                        {{ check_in_form.guest_category.label }}{{ check_in_form.guest_category() }}
+                        {{ check_in_form.visit_purpose.label }}{{ check_in_form.visit_purpose() }}
+                        {{ check_in_form.iitgn_id.label }}{{ check_in_form.iitgn_id() }}
+                        {{ check_in_form.email_id.label }} {{ check_in_form.email_id() }}
+                        {{ check_in_form.phone_number.label }} {{ check_in_form.phone_number() }}
+                        {{ check_in_form.submit() }}
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No reservations for today.</p>
+{% endif %}
+
+{% if reservation_to_finish %}
+<form method="post">
+    <input type="hidden" name="reservation_id" value="{{ reservation_to_finish.id }}">
+    <input type="submit" name="finish_check_in" value="Finish Check-In">
+</form>
+{% endif %}
+{% endblock %}

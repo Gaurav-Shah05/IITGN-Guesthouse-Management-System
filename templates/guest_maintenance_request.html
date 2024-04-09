@@ -1,0 +1,13 @@
+{% extends 'current_guest_dashboard.html' %}
+
+{% block content %}
+
+<h1>Maintenance Request Form</h1>
+<form method="POST" action="{{ url_for('current_guest_dashboard.guest_maintenance_request') }}">
+    {{ form.csrf_token }}
+    {{ form.description.label }} {{ form.description() }}
+    {{ form.submit() }}
+</form>
+
+
+{% endblock %}

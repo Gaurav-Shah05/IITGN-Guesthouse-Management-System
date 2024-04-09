@@ -1,0 +1,38 @@
+{% extends 'current_guest_dashboard.html' %}
+{% block content %}
+    <h1>Bills</h1>
+    
+    <h2>Paid Bills</h2>
+    <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center;">    
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Date when created</th>
+                    <th>Bill Type</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Paid Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in all_paid_bills %}
+                    <tr>
+                        <td>{{ bill.bill_id }}</td>
+                        <td>{{ bill.date_created }}</td>
+                        <td>{{ bill.bill_type }}</td>
+                        <td>{{ bill.amount }}</td>
+                        <td>{{ bill.payment_method }}</td>
+                        <td>{{ bill.paid_status }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3">Total Amount:</td>
+                    <td>{{ total_amount }}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

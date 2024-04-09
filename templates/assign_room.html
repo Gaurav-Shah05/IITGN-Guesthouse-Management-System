@@ -1,0 +1,41 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+
+<h1>Assign Room</h1>
+
+<p> Select Room from the following available rooms:</p>
+
+
+<div style="overflow: auto; height: 300px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Room Number</th>
+                <th>Room Type</th>
+                <th>Specially Enabled</th>
+                <th>Intercom Number</th>
+                <th>Assign Room</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for room in available_rooms %}
+            <tr>
+                <td>{{ room.room_id }}</td>
+                <td>{{ room.room_type }}</td>
+                <td>{{ room.is_specially_enabled }}</td>
+                <td>{{ room.intercom_number }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.choose_room', guest_id = guest_id, reservation_id = reservation_id) }}">
+                        <input type="hidden" name="room_no" value="{{ room.room_no }}">
+                        <input type="submit" value="Assign">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

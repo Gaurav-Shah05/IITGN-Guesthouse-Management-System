@@ -1,9 +1,48 @@
-{% extends 'base.html' %}
+{% extends 'hospitality_staff_dashboard.html' %}
 {% block content %}
-    <h1>Check-out</h1>
-    <form method="POST" action="{{ url_for('check_out') }}">
-        {{ form.csrf_token }}
-        {{ form.guest_id.label }} {{ form.guest_id }}
-        {{ form.submit }}
-    </form>
+
+<h1>Check-out's Today:</h1>
+
+{% if current_guests %}
+<div style="overflow: auto; height: 300px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Guest ID</th>
+                <th>Room Number</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Phone Number</th>
+                <th>Email ID</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for guest in current_guests %}
+            <tr>
+                <td>{{ guest.guest_id }}</td>
+                <td>{{ guest.room_no }}</td>
+                <td>{{ guest.first_name }}</td>
+                <td>{{ guest.last_name }}</td>
+                <td>{{ guest.phone_no }}</td>
+                <td>{{ guest.email_id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% else %}
+    <p>No check-out's today.</p>
+{% endif %}
+
+<h1>Check-out:</h1>
+
+<form method="POST" action="{{ url_for ('hospitality_staff_dashboard.check_out') }}">
+    {{ form.csrf_token }}
+    {{ form.guest_id.label }} {{ form.guest_id() }}
+    {{ form.submit() }}
+</form>
+
 {% endblock %}

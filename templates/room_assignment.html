@@ -1,0 +1,23 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+<h1>Room Assignment</h1>
+
+<p>Reservation ID: {{ reservation.id }}</p>
+<p>Number of Guests: {{ reservation.number_of_people }}</p>
+<p>Room Type: {{ reservation.room_type }}</p>
+
+<h2>Available Rooms</h2>
+{% if available_rooms %}
+<form method="post">
+    <select name="room_id">
+        {% for room in available_rooms %}
+        <option value="{{ room.id }}">{{ room.room_number }}</option>
+        {% endfor %}
+    </select>
+    <input type="submit" name="assign_room" value="Assign">
+</form>
+{% else %}
+<p>No available rooms of the requested type.</p>
+{% endif %}
+{% endblock %}

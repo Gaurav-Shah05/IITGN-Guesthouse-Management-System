@@ -1,0 +1,29 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+
+<h1>Check-In</h1>
+
+{% if no_of_guests == 1 %}
+<h2>Guest Details:</h2>
+{% else %}
+<h2>Guest 1 Details:</h2>
+{% endif %}
+
+<form method="POST" action="{{ url_for("hospitality_staff_dashboard.add_guest_1", reservation_id = reservation_id)}}">
+    {{ form.csrf_token }}
+    {{ form.first_name.label }} {{ form.first_name }}
+    {{ form.last_name.label }} {{ form.last_name }}
+    {{ form.age.label }} {{ form.age}}
+    {{ form.email_id.label }} {{ form.email_id }}
+    {{ form.phone_no.label }} {{ form.phone_no }}
+    {{ form.guest_category.label }} {{ form.guest_category }}
+    {{ form.street.label }} {{ form.street }}
+    {{ form.state.label }} {{ form.state }}
+    {{ form.country.label }} {{ form.country }}
+    {{ form.pincode.label }} {{ form.pincode }}
+    {{ form.visit_purpose.label }} {{ form.visit_purpose }}
+    {{ form.submit }}
+</form>
+
+{% endblock %}

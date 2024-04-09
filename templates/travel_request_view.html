@@ -1,0 +1,47 @@
+{% extends 'driver_dashboard.html' %}
+{% block content %}
+
+
+{% if assigned %}
+<h2>Assigned Requests</h2>
+<div style="overflow: auto; max-height: 600px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Travellers</th>
+                <th>Date of Travel</th>
+                <th>Pick Up Time</th>
+                <th>Destination</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in assigned %}
+            <tr>
+                <td style="text-align: center;">{{ request.travel_request_id }}</td>
+                <td>{{ request.number_of_travellers }}</td>
+                <td>{{ request.date_of_travel }}</td>
+                <td>{{ request.pick_up_time }}</td>
+                <td>{{ request.destination }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No assigned requests.</p>
+{% endif %}
+
+<br>
+<br>
+
+<button onclick="goBack()">Go Back</button>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+
+
+{% endblock %}

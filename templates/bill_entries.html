@@ -1,0 +1,35 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %}
+    <h1>Generated bill</h1>
+    <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center;">    
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Date when created</th>
+                    <th>Bill Type</th>
+                    <th>Amount</th>
+                    <th>Payment Method</th>
+                    <th>Paid Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in bill_entries %}
+                    <tr>
+                        <td>{{ entry.bill_id }}</td>
+                        <td>{{ entry.date_created }}</td>
+                        <td>{{ entry.bill_type }}</td>
+                        <td>{{ entry.amount }}</td>
+                        <td>{{ entry.payment_method }}</td>
+                        <td>{{ entry.paid_status }}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3">Total Amount:</td>
+                    <td>{{ total_amount }}</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

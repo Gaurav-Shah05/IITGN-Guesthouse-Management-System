@@ -8,11 +8,8 @@
 <body>
     <nav>
         <ul>
-            <li><a href="{{ url_for('current_guest_dashboard') }}">Home</a></li>
-            <li><a href="{{ url_for('current_guest_dashboard.guest_travel_request') }}">Travel Request</a></li>
-            <li><a href="{{ url_for('current_guest_dashboard.guest_maintenance_request') }}">Maintenance Request</a></li>
-            <li><a href="{{ url_for('current_guest_dashboard.show_bills') }}">Show Bills</a></li>
-            <li><a href="{{ url_for('current_guest_dashboard.change_password') }}">Change Password</a></li>
+            <li><a href="{{ url_for('housekeeping_staff_dashboard') }}">Home</a></li>
+            <li><a href="{{ url_for('housekeeping_staff_dashboard.view') }}">Assigned Requests</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </nav>
@@ -25,16 +22,8 @@
             {% endif %}
         {% endwith %}
         {% block content %}
-            <h2>Welcome, {{ currentguest.first_name }}</h2>
-
-            <h3>Your Wifi Password is : {{ assignment.wifi_password }}</h3>
-
-            <h3> Open Travel Requests </h3>
-
-            <h3> Closed Travel Requests </h3>
-
-
-
+            <h1>Welcome to the Guesthouse Management System</h1>
+            <p>Please click on Assigned Requests to View/Close the requests </p>
         {% endblock %}
     </main>
     <script src="{{ url_for('static', filename='../static/scripts.js') }}"></script>

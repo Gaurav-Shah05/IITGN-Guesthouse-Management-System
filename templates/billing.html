@@ -1,0 +1,16 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %}
+
+<h1>Billing</h1>
+<a href="{{ url_for('hospitality_staff_dashboard.create_bill') }}">Create a Bill</a>
+
+
+
+<h2>Generate a Bill</h2>
+<form method="POST" action="{{ url_for('hospitality_staff_dashboard.billing') }}">
+    {{ form.csrf_token }}
+    {{ form.guest_id.label }} {{ form.guest_id() }}
+    {{ form.submit() }}
+</form>
+
+{% endblock %}

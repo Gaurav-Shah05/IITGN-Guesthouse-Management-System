@@ -15,9 +15,12 @@
                 {% include 'iitgn_member_dashboard.html' %}
             {% elif current_user.is_authenticated  and current_user.role == "current_guest" %}
                 {% include 'current_guest_dashboard.html' %}
+            {% elif current_user.is_authenticated  and current_user.role == "housekeeping_staff" %}
+                {% include 'housekeeping_staff_dashboard.html' %}
+            {% elif current_user.is_authenticated  and current_user.role == "driver" %}
+                {% include 'driver_dashboard.html' %}
             {% else %}
                 <li><a href="{{ url_for('login') }}">Login</a></li>
-                <li><a href="{{ url_for('register') }}">Register</a></li>
             {% endif %}
         </ul>
     </nav>

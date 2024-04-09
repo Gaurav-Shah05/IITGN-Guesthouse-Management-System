@@ -3,3 +3,5 @@ flask-sqlalchemy
 flask-wtf
 mysql-connector-python
 mysqlclient
+flask-Login
+email_validator

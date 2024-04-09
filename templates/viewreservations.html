@@ -1,0 +1,34 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %} 
+
+<h2>All Reservations</h2>
+<div style="overflow: auto; max-height: 600px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Reservation_id</th>
+                <th>No of people</th>
+                <th>check-in-date</th>
+                <th>check-out-date</th>
+                <th>Room Type</th>
+                <th>Specially enabled room required</th>
+                <th>Comments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in all_reservations %}
+            <tr>
+                <td style="text-align: center;">{{ reservation.reservation_id }}</td>
+                <td>{{ reservation.number_of_people }}</td>
+                <td>{{ reservation.check_in_date }}</td>
+                <td>{{ reservation.check_out_date }}</td>
+                <td>{{ reservation.room_type }}</td>
+                <td>{{ reservation.specially_enabled_room_required }}</td>
+                <td>{{ reservation.comments }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

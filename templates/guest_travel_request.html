@@ -1,0 +1,13 @@
+{% extends 'current_guest_dashboard.html' %}
+{% block content %}
+    <h1>Travel Request</h1>
+    <form method="POST" action="{{ url_for('current_guest_dashboard.guest_travel_request') }}">
+        {{ form.csrf_token }}
+        {{ form.number_of_travellers.label }} {{ form.number_of_travellers }}
+        {{ form.date_of_travel.label }} {{ form.date_of_travel }}
+        {{ form.pick_up_time.label }} {{ form.pick_up_time }}
+        {{ form.destination.label }} {{ form.destination }}
+        {{ form.travel_purpose.label }} {{ form.travel_purpose }}
+        {{ form.submit }}
+    </form>
+{% endblock %}

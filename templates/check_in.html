@@ -1,19 +1,46 @@
-{% extends 'base.html' %}
+{% extends 'hospitality_staff_dashboard.html' %}
+
 {% block content %}
-    <h1>Check-in</h1>
-    <form method="POST" action="{{ url_for('check_in') }}">
-        {{ form.csrf_token }}
-        {{ form.first_name.label }} {{ form.first_name }}
-        {{ form.last_name.label }} {{ form.last_name }}
-        {{ form.age.label }} {{ form.age }}
-        {{ form.street.label }} {{ form.street }}
-        {{ form.state.label }} {{ form.state }}
-        {{ form.pincode.label }} {{ form.pincode }}
-        {{ form.country.label }} {{ form.country }}
-        {{ form.phone_no.label }} {{ form.phone_no }}
-        {{ form.guest_category.label }} {{ form.guest_category }}
-        {{ form.visit_purpose.label }} {{ form.visit_purpose }}
-        {{ form.iitgn_id.label }} {{ form.iitgn_id }}
-        {{ form.submit }}
-    </form>
+<h1>Check-In</h1>
+
+<h2>Today's Reservations</h2>
+{% if reservations %}
+<div style="max-height: 300px; max-width: 1500px; overflow-y: scroll;">
+    <table>
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>IIT Gandhinagar ID</th>
+                <th>Check-Out Date</th>
+                <th>Email</th>
+                <th>Number of People</th>
+                <th>Room Type</th>
+                <th>Specially Abled Room Needed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr style="text-align: center;">
+                <td>{{ reservation.reservation_id }}</td>
+                <td>{{ reservation.iitgn_id }}</td>
+                <td>{{ reservation.check_out_date }}</td>
+                <td>{{ reservation.email_id }}</td>
+                <td>{{ reservation.number_of_people }}</td>
+                <td>{{ reservation.room_type }}</td>
+                <td>{{ reservation.specially_enabled_room_required }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.add_guest_1', reservation_id = reservation.reservation_id) }}">
+                        <input type="submit" value="Add Guest">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No reservations for today.</p>
+{% endif %}
+
 {% endblock %}

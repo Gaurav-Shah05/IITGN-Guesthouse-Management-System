@@ -1,13 +1,54 @@
 {% extends 'hospitality_staff_dashboard.html' %}
 {% block content %}
-    <h1>Travel Request</h1>
-    <form method="POST" action="{{ url_for('travel_request') }}">
-        {{ form.csrf_token }}
-        {{ form.number_of_travellers.label }} {{ form.number_of_travellers }}
-        {{ form.date_of_travel.label }} {{ form.date_of_travel }}
-        {{ form.pick_up_time.label }} {{ form.pick_up_time }}
-        {{ form.destination.label }} {{ form.destination }}
-        {{ form.travel_purpose.label }} {{ form.travel_purpose }}
-        {{ form.submit }}
-    </form>
+
+<a href="{{ url_for('hospitality_staff_dashboard.travel_request_completed') }}">See Completed Travel Requests</a>
+
+<h2>Unassigned Travel Requests</h2>
+{% if unassigned_travel_requests %}
+<div style="overflow: auto; max-height: 400px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Travellers</th>
+                <th>Date</th>
+                <th>Pick-Up Time</th>
+                <th>Destination</th>
+                <th>Purpose</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in unassigned_travel_requests %}
+            <tr>
+                <td style="text-align: center;">{{ request.travel_request_id }}</td>
+                <td>{{ request.number_of_travellers }}</td>
+                <td>{{ request.date_of_travel }}</td>
+                <td>{{ request.pick_up_time }}</td>
+                <td>{{ request.destination }}</td>
+                <td>{{ request.travel_purpose }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.driver_choose', request_id=request.travel_request_id) }}">
+                        <input type="submit" value="Assign Driver">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No unassigned travel requests.</p>
+{% endif %}
+
+<h1>Create a Travel Request</h1>
+<form method="POST" action="{{ url_for('hospitality_staff_dashboard.travel_requests') }}">
+    {{ form.csrf_token }}
+    {{ form.number_of_travellers.label }} {{ form.number_of_travellers }}
+    {{ form.date_of_travel.label }} {{ form.date_of_travel }}
+    {{ form.pick_up_time.label }} {{ form.pick_up_time }}
+    {{ form.destination.label }} {{ form.destination }}
+    {{ form.travel_purpose.label }} {{ form.travel_purpose }}
+    {{ form.submit }}
+</form>
 {% endblock %}

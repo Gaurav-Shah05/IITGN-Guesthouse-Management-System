@@ -1,0 +1,50 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+{% block content %}
+
+<h2>Assign the Travel Requests</h2>
+
+<div style="overflow: auto; max-height: 400px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Driver License</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Age</th>
+                <th>Car Description</th>
+                <th>Phone Number</th>
+                <th>Experience</th>
+                <th>Pending Requests</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+            <tr>
+                <td style="text-align: center;">{{ driver.driver_license }}</td>
+                <td>{{ driver.first_name }}</td>
+                <td>{{ driver.last_name }}</td>
+                <td>{{ driver.age }}</td>
+                <td>{{ driver.car_description }}</td>
+                <td>{{ driver.phone_number }}</td>
+                <td>{{ driver.experience }}</td>
+                <td>{{ pending_requests_by_driver_license[loop.index0] }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.driver_assign', travel_request_id=request_id, driver_license = driver.driver_license) }}">
+                        <input type="submit" value="Assign">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<button onclick="goBack()">Go Back</button>
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+{% endblock %}
