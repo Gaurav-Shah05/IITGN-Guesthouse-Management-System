@@ -6,6 +6,51 @@
     <a href="{{ url_for('hospitality_staff_dashboard.viewreservations') }}">See all reservations</a>
 </div>
 
+<h3>Unconfirmed Reservation by IITGN Members</h3>
+{% if reservations %}
+<div style="overflow: auto; max-height: 400px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>IITGN ID</th>
+                <th>Email ID</th>
+                <th>Number of People</th>
+                <th>Check In Date</th>
+                <th>Check Out Date</th>
+                <th>Room Type</th>
+                <th>Enabled Room</th>
+                <th>Comments</th>
+                <th>Confirm</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.reservation_id }}</td>
+                <td>{{ reservation.iitgn_id }}</td>
+                <td>{{ reservation.email_id }}</td>
+                <td>{{ reservation.number_of_people }}</td>
+                <td>{{ reservation.check_in_date }}</td>
+                <td>{{ reservation.check_out_date }}</td>
+                <td>{{ reservation.room_type }}</td>
+                <td>{{ reservation.specially_enabled_room_required }}</td>
+                <td>{{ reservation.comments }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.confirm_reservation', reservation_id=reservation.reservation_id) }}">
+                        <input type="submit" value="Confirm">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p>No unconfirmed reservations</p>
+{% endif %}
+
+
 
 <script>
     function toggleReservationForm() {
@@ -17,24 +62,30 @@
         }
     }
 </script>
+
+<br>
+<br>
+
 <div>
     <button onclick="toggleReservationForm()">Make a Reservation</button>
 </div>
 
-
-    <div id="reservationForm" style="display: none;">
-        <h1>Make a Reservation</h1>
-        <form method="POST" action="{{ url_for('hospitality_staff_dashboard.booking') }}">
-            {{ form.csrf_token }}
-            {{ form.iitgn_id.label }}{{ form.iitgn_id }}
-            {{ form.email_id.label }} {{ form.email_id }}
-            {{ form.number_of_people.label }}{{ form.number_of_people }}
-            {{ form.check_in_date.label }} {{ form.check_in_date }}
-            {{ form.check_out_date.label }} {{ form.check_out_date }}
-            {{ form.room_type.label }} {{ form.room_type }}
-            {{ form.specially_enabled_room_required.label }} {{ form.specially_enabled_room_required }}
-            {{ form.comments.label }} {{ form.comments }}
-            {{ form.submit }}
-        </form>
-    </div>
+<div id="reservationForm" style="display: none;">
+    <h1>Make a Reservation</h1>
+    <form method="POST" action="{{ url_for('hospitality_staff_dashboard.booking') }}">
+        {{ form.csrf_token }}
+        {{ form.iitgn_id.label }}{{ form.iitgn_id }}
+        {{ form.email_id.label }} {{ form.email_id }}
+        {{ form.number_of_people.label }}{{ form.number_of_people }}
+        {{ form.check_in_date.label }} {{ form.check_in_date }}
+        {{ form.check_out_date.label }} {{ form.check_out_date }}
+        {{ form.room_type.label }} {{ form.room_type }}
+        {{ form.specially_enabled_room_required.label }} {{ form.specially_enabled_room_required }}
+        {{ form.comments.label }} {{ form.comments }}
+        {{ form.submit }}
+    </form>
+</div>
 {% endblock %}
+
+
+

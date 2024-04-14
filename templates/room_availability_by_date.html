@@ -1,0 +1,50 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+
+<h3> Room Availability on date: {{ date }} </h3>
+
+<table>
+    <thead>
+        <tr>
+            <th>Room Type</th>
+            <th>Specially Enabled</th>
+            <th>Room Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Double Bed</td>
+            <td>True</td>
+            <td> {{ available_rooms[0] }}</td>
+        </tr>
+        <tr>
+            <td>Double Bed</td>
+            <td>False</td>
+            <td> {{ available_rooms[1] }}</td>
+        </tr>
+        <tr>
+            <td>Twin Bed</td>
+            <td>True</td>
+            <td> {{ available_rooms[2] }}</td>
+        </tr>
+        <tr>
+            <td>Twin Bed</td>
+            <td>False</td>
+            <td> {{ available_rooms[3] }}</td>
+        </tr>
+        <tr>
+            <td>Suite</td>
+            <td>True</td>
+            <td> {{ available_rooms[4] }}</td>
+        </tr>
+        <tr>
+            <td>Suite</td>
+            <td>False</td>
+            <td> {{ available_rooms[5] }}</td>
+        </tr>
+
+    </tbody>
+</table>
+
+{% endblock %}

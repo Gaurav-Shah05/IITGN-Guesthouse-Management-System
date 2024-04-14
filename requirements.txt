@@ -5,3 +5,5 @@ mysql-connector-python
 mysqlclient
 flask-Login
 email_validator
+Authlib
+requests

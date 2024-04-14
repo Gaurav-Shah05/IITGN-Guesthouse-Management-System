@@ -6,8 +6,9 @@
 <a href="{{ url_for('hospitality_staff_dashboard.maintenance_request_closed') }}">See Closed Maintenance Requests</a>
 
 
-<h2>Open Maintenance Requests</h2>
-{% if open_maintenance_requests %}
+<h2>Umassigned Open Maintenance Requests</h2>
+
+{% if room_cleaning_requests %}
 <div style="overflow: auto; max-height: 400px;">
     <table>
         <thead>
@@ -20,7 +21,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for request in open_maintenance_requests %}
+            {% for request in room_cleaning_requests %}
             <tr>
                 <td style="text-align: center;">{{ request.request_id }}</td>
                 <td>{{ request.description }}</td>
@@ -37,7 +38,40 @@
     </table>
 </div>
 {% else %}
-<p>No open maintenance requests.</p>
+<p> All Check-Out room cleaning finished. Please come back after a check-out. </p>
+{% endif %}
+
+{% if other_requests %}
+<div style="overflow: auto; max-height: 400px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Description</th>
+                <th>Date Created</th>
+                <th>Time Created</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in other_requests %}
+            <tr>
+                <td style="text-align: center;">{{ request.request_id }}</td>
+                <td>{{ request.description }}</td>
+                <td>{{ request.date_created }}</td>
+                <td>{{ request.time_created }}</td>
+                <td>
+                    <form method="post" action="{{ url_for('hospitality_staff_dashboard.maintenance_request_choose', request_id=request.request_id) }}">
+                        <input type="submit" value="Choose Staff">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>No other unassigned open maintenance requests.</p>
 {% endif %}
 
 <h2>Create a Maintenance Request</h2>

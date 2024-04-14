@@ -9,8 +9,13 @@ from member import member
 from guest import guest
 from staff import staff
 from Driver import Driver
+from authlib.integrations.flask_client import OAuth
+import requests
+
 
 app = Flask(__name__)
+oauth = OAuth(app)
+
 app.register_blueprint(admin, url_prefix='/')
 app.register_blueprint(member, url_prefix='/')
 app.register_blueprint(guest, url_prefix='/')
@@ -19,6 +24,8 @@ app.register_blueprint(Driver, url_prefix='/')
 
 app.config['SECRET_KEY'] = 'abc'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://root:asterix@localhost/guesthouse_db'
+app.config['SERVER_NAME'] = 'localhost:5000'
+
 
 db.init_app(app)
 
@@ -77,6 +84,57 @@ def login():
         return redirect(url_for('login'))
     
     return render_template('login.html', form=form)
+
+# #Add lines form the doc
+# GOOGLE_CLIENT_ID = <>
+# GOOGLE_CLIENT_SECRET = <>
+   
+CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
+oauth.register(
+    name='google',
+    client_id=GOOGLE_CLIENT_ID,
+    client_secret=GOOGLE_CLIENT_SECRET,
+    server_metadata_url=CONF_URL,
+    client_kwargs={'scope': 'openid email profile'}
+)
+
+@app.route('/google')
+def google():
+    #redirect to google_auth funtion
+    redirect_uri = url_for('google_auth', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+def decode_token(token):
+    id_token = token['id_token']
+    r = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={id_token}')
+    if r.status_code == 200:
+        return r.json()
+    else:
+        raise ValueError('Token could not be decoded.')
+    
+@app.route('/google/auth')
+def google_auth():
+    token = oauth.google.authorize_access_token()
+    user_info = decode_token(token)
+    email = user_info["email"]
+    
+    # Check if the user exists in the hospitality_staff table
+    user_hospitality = hospitality_staff.query.filter_by(email_id=email).first()
+    if user_hospitality is not None:
+        login_user(user_hospitality)
+        return redirect(url_for('hospitality_staff_dashboard'))
+    
+    # Check if the user exists in the iitgn_member table
+    user_iitgn = iitgn_member.query.filter_by(email_id=email).first()
+    if user_iitgn is not None:
+        login_user(user_iitgn)
+        return redirect(url_for('iitgn_member_dashboard'))
+    
+    # If the user doesn't exist in either table
+    flash('User does not exist', 'danger')
+    return redirect(url_for('login'))
+
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -142,18 +200,40 @@ def current_guest_dashboard():
 @login_required
 def hospitality_staff_dashboard():
 
+#------------------
+    # delete reservations where confirmed = False and check_in_date < today
+    reservations = Reservation.query.filter(Reservation.confirmed == False, Reservation.check_in_date < datetime.today().date()).all()
+    for reservation in reservations:
+        db.session.delete(reservation)
+    db.session.commit()
+#------------------
+
     currentguest = current_guest.query.order_by(current_guest.room_no).all()
     
     assign_open_main_requests = maintenance_request.query.filter(maintenance_request.status == 'open', maintenance_request.housekeeping_staff_id.isnot(None)).all()
+
+#------------------
     
-    return render_template('hospitality_staff_dashboard.html',currentguest=currentguest, assign_open_main_requests=assign_open_main_requests)
+    # room_cleaning_requests =  maintenance requests from assign_open_main_requests whose request_id is in RequiresMaintenance
+    room_cleaning_requests = []
+    for request in assign_open_main_requests:
+        if RequiresMaintenance.query.filter_by(request_id = request.request_id).first() is not None:
+            room_cleaning_requests.append(request)
+    
+    other_requests = [request for request in assign_open_main_requests if request not in room_cleaning_requests]
+#------------------
+    
+    return render_template('hospitality_staff_dashboard.html',currentguest=currentguest, room_cleaning_requests=room_cleaning_requests, other_requests=other_requests)
 
 @app.route('/iitgn_member_dashboard')
 @login_required
 def iitgn_member_dashboard():
 
     makes = Makes.query.filter_by(iitgn_id = current_user.get_id()).first()
-    reservation_id = Reservation.query.filter_by(reservation_id = makes.reservation_id).all()
+    if makes is not None:
+        reservation_id = Reservation.query.filter_by(reservation_id = makes.reservation_id).all()
+    else:
+        reservation_id = []
     # print(reservation_id.reservation_id)
 
     
@@ -161,10 +241,18 @@ def iitgn_member_dashboard():
     # print(reservation)
     
     #iterate over all reservations and get the details of each reservation
-    reservations =[]
-    for i in reservation_id:
-        reservations.append(Reservation.query.filter_by(reservation_id = i.reservation_id).first())
-    return render_template('iitgn_member_dashboard.html', member_reservations=reservations)
+    confirmed_reservations = []
+    unconfirmed_reservations = []
+    for reservation in reservation_id:
+        
+        if reservation.confirmed == True:
+            confirmed_reservations.append(reservation)
+        else:
+            unconfirmed_reservations.append(reservation)
+    
+    
+
+    return render_template('iitgn_member_dashboard.html', confirmed_reservations=confirmed_reservations, unconfirmed_reservations=unconfirmed_reservations)
 
 @app.route('/housekeeping_staff_dashboard')
 @login_required

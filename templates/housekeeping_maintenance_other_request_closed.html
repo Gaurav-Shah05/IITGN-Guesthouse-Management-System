@@ -1,0 +1,48 @@
+{% extends 'housekeeping_staff_dashboard.html' %}
+{% block content %}
+
+<h2>Other Maintenance Requests</h2>
+{% if assigned %}
+<div style="overflow: auto; max-height: 600px;">
+    <table>
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Date Created</th>
+                <th>Time Created</th>
+                <th>Request Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in assigned %}
+                <tr>
+                    <td>{{ request.request_id }}</td>
+                    <td>{{ request.date_created }}</td>
+                    <td>{{ request.time_created }}</td>
+                    <td>{{ request.description }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('housekeeping_staff_dashboard.close_other_request', request_id=request.request_id) }}">
+                            <input type="submit" value="Close">
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p>No other requests assigned yet.</p>
+{% endif %}
+
+<br>
+
+<button onclick="goBack()">Go Back</button>
+
+<script>
+    function goBack() {
+      window.history.back();
+    }
+</script>
+
+{% endblock %}

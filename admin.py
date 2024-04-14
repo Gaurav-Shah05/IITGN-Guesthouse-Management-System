@@ -8,6 +8,8 @@ from forms import BookingForm, billForm, CheckInForm, CheckOutForm, MaintenanceR
 from models import db, driver, current_guest, Room, hospitality_staff, housekeeping_staff, iitgn_member, Reservation, Bill,  maintenance_request, PastGuests, Feedback, travel_request, Assignment, RequiresMaintenance, ManagesMaintenance, ManagesReservation, IncursBill, Makes, GeneratesBill, InitiatedTravelRequest
 from random import choices
 import string
+from sqlalchemy import select
+
 
 admin = Blueprint('hospitality_staff_dashboard', __name__)
 
@@ -121,7 +123,7 @@ admin = Blueprint('hospitality_staff_dashboard', __name__)
 def check_in():
 
     today = date.today()
-    reservations = Reservation.query.filter(Reservation.check_in_date == today, Reservation.checked_in == False).all()
+    reservations = Reservation.query.filter(Reservation.check_in_date == today, Reservation.checked_in == False, Reservation.confirmed == True).all()
     return render_template('check_in.html', reservations=reservations)
 
 # Use this route to add guests to the reservation
@@ -139,13 +141,14 @@ def add_guest_1(reservation_id):
 
     if form.validate_on_submit():
         highest_id = db.session.query(db.func.max(current_guest.guest_id)).scalar()
+        highest_id = 0 if highest_id is None else highest_id
         print(highest_id)
         guest = current_guest(
             guest_id=highest_id + 1,
             first_name=form.first_name.data,
             last_name=form.last_name.data,
             age=form.age.data,
-            street=form.street.data, 
+            street=form.    street.data, 
             state=form.state.data,
             pincode= form.pincode.data,    
             country=form.country.data,
@@ -222,6 +225,11 @@ def choose_room(reservation_id,guest_id):
         Room.is_specially_enabled == reservation.specially_enabled_room_required,
         ~Room.room_no.in_([a.room_no for a in Assignment.query.all()])
     ).all()
+
+#------------------
+    # select room from available_rooms whose room_no is not in room_no of RequiresMaintenance table
+    available_rooms = [room for room in available_rooms if room.room_no not in [maintenance.room_no for maintenance in RequiresMaintenance.query.all()]]
+#------------------
 
     print(available_rooms)
     
@@ -347,45 +355,76 @@ def check_out_guest(guest_id):
         visit_purpose=current_guest_out.visit_purpose,
         iitgn_id=current_guest_out.iitgn_id,
     )
-    # change the room status to available
-    room = Room.query.get_or_404(current_guest_out.room_no)
-    room.status = 'available'
+#------------------
+    # change the room check_out_cleaning to True
+    room = Room.query.get_or_404(room)
+    room.check_out_cleaning = True
+
+    #create a maintenance request for the room to be cleaned
+    highest_id = db.session.query(db.func.max(maintenance_request.request_id)).scalar()
+    new_request = maintenance_request(
+        request_id = highest_id + 1,
+        description = f'CHECK-OUT: Cleaning in room {room.room_no}',
+        date_created = datetime.datetime.now().date(),
+        time_created = datetime.datetime.now().time(),
+        status='open'
+    )
+    db.session.add(new_request)
+    db.session.commit()
+
+    # assign the maintenance_request_id and room_no to the RequiresMaintenance table
+    requires_maintenance = RequiresMaintenance(
+        request_id = highest_id + 1,
+        room_no = room.room_no
+    )
+    db.session.add(requires_maintenance)
+
+#------------------
     # add the past_guest to the past_guest table
     db.session.add(past_guest)
     # delete the current_guest from the current_guest table
     db.session.delete(current_guest_out)
+    #delete the assignment from the assignment table
+    db.session.delete(assignment)
     db.session.commit()
     flash('Guest checked out successfully!', 'success')
     return redirect(url_for('hospitality_staff_dashboard.check_out'))
 
-# ROUTES FOR TRAVEL REQUESTSs
+# ROUTES FOR TRAVEL REQUESTS
 
 @admin.route('/hospitality_staff_dashboard/travel_request', methods=['GET', 'POST'])
 @login_required
 def travel_requests():
-
+    
     unassigned_travel_requests = travel_request.query.filter_by(driver_license=None).all()
 
     form = TravelRequestForm()
     if form.validate_on_submit():
         # Handle travel request form submission
-        highest_id = db.session.query(db.func.max(travel_request.travel_request_id)).scalar()
-        if highest_id is None:
-            highest_id = 0
-        travel_request_new = travel_request(
-            travel_request_id=highest_id + 1,
-            number_of_travellers=form.number_of_travellers.data,
-            date_of_travel=form.date_of_travel.data,
-            pick_up_time=form.pick_up_time.data,
-            destination=form.destination.data,
-            travel_purpose=form.travel_purpose.data
-        )
+       
+        locked_table = select(travel_request).with_for_update()
+        db.session.execute(locked_table)
+       
+        with db.session.begin_nested():
+            highest_id = db.session.query(db.func.max(travel_request.travel_request_id)).scalar()
+            if highest_id is None:
+                highest_id = 0
+            travel_request_new = travel_request(
+                travel_request_id=highest_id + 1,
+                number_of_travellers=form.number_of_travellers.data,
+                date_of_travel=form.date_of_travel.data,
+                pick_up_time=form.pick_up_time.data,
+                destination=form.destination.data,
+                travel_purpose=form.travel_purpose.data
+            )
 
-        db.session.add(travel_request_new)
+
+            db.session.add(travel_request_new)
         db.session.commit()
         flash('Travel request submitted successfully!', 'success')
         return redirect(url_for('hospitality_staff_dashboard.travel_requests'))
     return render_template('travel_request.html', form=form, unassigned_travel_requests=unassigned_travel_requests)
+
 
 @admin.route('hospitality_staff_dashboard/travel_request_completed', methods=['GET'])
 @login_required
@@ -399,17 +438,37 @@ def travel_request_completed():
 @login_required
 def driver_choose(request_id):
 
+    request = travel_request.query.get_or_404(request_id)
     # Fetch all records of driver table
     driver_all = driver.query.all()
+
+#------------------
+
+    # Select drivers from driver_all who don't have any pending requests within +- 6 hours of the travel_request pick_up_time on the date_of _travel
+    driver_available = []
+    for drivers in driver_all: 
+        pending_requests = travel_request.query.filter(travel_request.driver_license == drivers.driver_license, travel_request.date_of_travel >= request.date_of_travel).all()
+        l = len(pending_requests)
+        i = 0
+        for pending_request in pending_requests:
+            if pending_request.date_of_travel == request.date_of_travel and abs(request.pick_up_time.hour - request.pick_up_time.hour) < 6:
+                print(pending_request)
+                break
+            i += 1
+        if i == l:
+            driver_available.append(drivers)
+    print(driver_available)
+
+#------------------
     pending_requests_by_driver_license = []
 
     # Get travel requests associated with a driver by filtering travel_requests on driver_license
-    for drivers in driver_all:
+    for drivers in driver_available:
         total_travel_requests = travel_request.query.filter_by(driver_license=drivers.driver_license).all()
         pending_travel_requests = [request for request in total_travel_requests if request.date_of_travel > datetime.datetime.now().date()]
         pending_requests_by_driver_license.append(len(pending_travel_requests))
 
-    return render_template('travel_request_assignment.html', drivers=driver_all, pending_requests_by_driver_license=pending_requests_by_driver_license, request_id=request_id)
+    return render_template('travel_request_assignment.html', drivers=driver_available, pending_requests_by_driver_license=pending_requests_by_driver_license, request_id=request_id)
 
 @admin.route('/hospitality_staff_dashboard/driver_assign/<int:travel_request_id>/<int:driver_license>', methods=['POST'])
 @login_required
@@ -430,25 +489,37 @@ def maintenance_request_view():
     #select maintainence requests where hospitality_staff_id is None
     open_maintenance_requests = maintenance_request.query.filter(maintenance_request.status == 'open', maintenance_request.housekeeping_staff_id.is_(None)).all()
 
+#------------------
+    #select open_maintenance_requests which belong to requires_maintenance table
+    room_cleaning_requests = [request for request in open_maintenance_requests if request.request_id in [maintenance.request_id for maintenance in RequiresMaintenance.query.all()]]
+   
+    # other_requests = open_maintenance_requests - room_cleaning_requests
+    other_requests = [request for request in open_maintenance_requests if request not in room_cleaning_requests]
+#------------------
+
     form = MaintenanceRequestForm()
 
     if form.validate_on_submit():
-
-        highest_id = db.session.query(db.func.max(maintenance_request.request_id)).scalar()
-        new_request = maintenance_request(
-            request_id = highest_id + 1,
-            description = form.description.data,
-            date_created = datetime.datetime.now().date(),
-            time_created = datetime.datetime.now().time(),
-            status='open'
-        )
-        db.session.add(new_request)
+        
+        locked_table = select(maintenance_request).with_for_update()
+        db.session.execute(locked_table)
+        
+        with db.session.begin_nested():
+            highest_id = db.session.query(db.func.max(maintenance_request.request_id)).scalar()
+            new_request = maintenance_request(
+                request_id = highest_id + 1,
+                description = form.description.data,
+                date_created = datetime.datetime.now().date(),
+                time_created = datetime.datetime.now().time(),
+                status='open'
+            )
+            db.session.add(new_request)
         db.session.commit()
         flash('Maintenance request created successfully!', 'success')
         return redirect(url_for('hospitality_staff_dashboard.maintenance_request_view'))
 
     
-    return render_template('maintenance_request.html', open_maintenance_requests=open_maintenance_requests,
+    return render_template('maintenance_request.html', room_cleaning_requests=room_cleaning_requests, other_requests=other_requests,
                             form=form)
 
 @admin.route('/hospitality_staff_dashboard/close_maintenance_request/<int:request_id>', methods=['POST'])
@@ -498,34 +569,61 @@ def maintenance_request_closed():
 
 # ROUTES FOR RESERVATIONS
 
+#-----------------
 @admin.route('/hospitality_staff_dashboard/booking', methods=['GET', 'POST'])
 @login_required
 def booking():
+
+#------------------
+    # Get the reservation ids from reservation table where confirmed is 0
+    reservations = Reservation.query.filter_by(confirmed=False).all()
+
+    # update the Reservation.iitgn_id with Makes.iitgn_id corrosponding to the reservation_id
+    for reservation in reservations:
+        reservation.iitgn_id = Makes.query.filter_by(reservation_id=reservation.reservation_id).first().iitgn_id
+#------------------
+
     form = BookingForm()
     if form.validate_on_submit():
         # Handle booking form submission
-        highest_id = db.session.query(db.func.max(Reservation.reservation_id)).scalar()
-        if highest_id is None:
-            highest_id = 0
-        reservation = Reservation(
-            reservation_id=highest_id + 1,
-            number_of_people=form.number_of_people.data,
-            check_in_date=form.check_in_date.data,
-            check_out_date=form.check_out_date.data,
-            room_type=form.room_type.data,
-            specially_enabled_room_required=form.specially_enabled_room_required.data,
-            comments=form.comments.data,
-            email_id=form.email_id.data,
-            iitgn_id=form.iitgn_id.data,
-            checked_in=False,
-            checked_out=False
-        )
-
-        db.session.add(reservation)
+        
+        locked_table = select(Reservation).with_for_update()
+        db.session.execute(locked_table)
+        
+        with db.session.begin_nested():
+            highest_id = db.session.query(db.func.max(Reservation.reservation_id)).scalar()
+            if highest_id is None:
+                highest_id = 0
+            reservation = Reservation(
+                reservation_id=highest_id + 1,
+                number_of_people=form.number_of_people.data,
+                check_in_date=form.check_in_date.data,
+                check_out_date=form.check_out_date.data,
+                room_type=form.room_type.data,
+                specially_enabled_room_required=form.specially_enabled_room_required.data,
+                comments=form.comments.data,
+                email_id=form.email_id.data,
+                iitgn_id=form.iitgn_id.data,
+                checked_in=False,
+                checked_out=False,
+                confirmed=True
+            )
+            db.session.add(reservation)
         db.session.commit()
         flash(f'Reservation created successfully! Reservation ID: {reservation.reservation_id}', 'success')
         return redirect(url_for('hospitality_staff_dashboard.booking'))
-    return render_template('booking.html', form=form)
+    return render_template('booking.html', form=form, reservations=reservations)
+
+#------------------
+@admin.route('/hospitality_staff_dashboard/confirm_reservation/<int:reservation_id>', methods=['POST'])
+@login_required
+def confirm_reservation(reservation_id):
+        reservation = Reservation.query.get_or_404(reservation_id)
+        reservation.confirmed = True
+        db.session.commit()
+        flash('Reservation confirmed successfully!', 'success')
+        return redirect(url_for('hospitality_staff_dashboard.booking'))
+#------------------
 
 @admin.route('/hospitality_staff_dashboard/viewreservations')
 @login_required
@@ -565,46 +663,53 @@ def billing():
 @admin.route('/hospitality_staff_dashboard/create_bill', methods=['GET', 'POST'])
 @login_required
 def create_bill():
-    
+   
     form = billForm()
+
 
     paid_status=form.paid_status.data
     if paid_status == 1:
         paid_status = True
-    else:   
+    else:  
         paid_status = False
 
-    if form.validate_on_submit():
 
-        highest_id = db.session.query(db.func.max(Bill.bill_id)).scalar()
-        new_bill = Bill(
-            bill_id = highest_id + 1,
-            date_created = datetime.datetime.now().date(),
-            time_created = datetime.datetime.now().time(),
-            amount = form.amount.data,
-            bill_type = form.bill_type.data,
-            payment_method = form.payment_method.data,
-            paid_status = paid_status,
-            generated_by = form.generated_by.data,
-            description = form.description.data
-        )
-        db.session.add(new_bill)
-        db.session.flush() 
-        incurs_bill = IncursBill(
-            guest_id = form.guest_id.data,
-            bill_id = highest_id + 1
-        ) 
-        db.session.add(incurs_bill)
+    if form.validate_on_submit():
+       
+        locked_table = select(Bill).with_for_update()
+        db.session.execute(locked_table)
+       
+        with db.session.begin_nested():
+            highest_id = db.session.query(db.func.max(Bill.bill_id)).scalar()
+            new_bill = Bill(
+                bill_id = highest_id + 1,
+                date_created = datetime.datetime.now().date(),
+                time_created = datetime.datetime.now().time(),
+                amount = form.amount.data,
+                bill_type = form.bill_type.data,
+                payment_method = form.payment_method.data,
+                paid_status = paid_status,
+                generated_by = form.generated_by.data,
+                description = form.description.data
+            )
+            db.session.add(new_bill)
+            db.session.flush()
+            incurs_bill = IncursBill(
+                guest_id = form.guest_id.data,
+                bill_id = highest_id + 1
+            )
+            db.session.add(incurs_bill)
         db.session.commit()
+
 
         bill = Bill.query.filter(Bill.bill_id == highest_id + 1).first()
         print(bill)
         flash(f'Bill created successfully! Bill ID: {highest_id + 1}', 'success')
         return redirect(url_for('hospitality_staff_dashboard.create_bill'))
-    
+   
     else:
         print(form.errors)
-    
+   
     return render_template('create_bill.html', form=form)
 
 @admin.route('/hospitality_staff_dashboard/pay_bill/<int:bill_id>', methods=['GET', 'POST'])    
@@ -616,6 +721,69 @@ def pay_bill(bill_id):
     flash('Bill marked as paid!', 'success')
     return redirect(url_for('hospitality_staff_dashboard.billing'))
 
+
+# ROUTES TO CHECK ROOM_AVAILABILITY BY DATE
+#------------------
+@admin.route('/hospitality_staff_dashboard/room_availability', methods=['GET', 'POST'])
+@login_required
+def room_availibility():
+    if request.method == 'POST':
+        date = request.form['date']
+        return redirect(url_for('hospitality_staff_dashboard.room_availibility_by_date', date=date))
+    return render_template('room_availability.html')
+
+@admin.route('/hospitality_staff_dashboard/room_availability/<date>', methods=['GET'])
+@login_required
+def room_availibility_by_date(date):
+    
+    rooms = Room.query.all()
+
+    # there are 6 types of rooms: double bed, twin bed, suite : each of them can be specially enabled or not
+    # show number of room for each of the category available for booking on the given date
+    # first count total of each type of room and then subtract the number of rooms booked on that date
+
+    room_count= [0,0,0,0,0,0]
+    for room in rooms:
+        if room.room_type == 'double bed' and room.is_specially_enabled == False:
+            room_count[0] += 1
+        elif room.room_type == 'double bed' and room.is_specially_enabled == True:
+            room_count[1] += 1
+        elif room.room_type == 'twin bed' and room.is_specially_enabled == False:
+            room_count[2] += 1
+        elif room.room_type == 'twin bed' and room.is_specially_enabled == True:
+            room_count[3] += 1
+        elif room.room_type == 'suite' and room.is_specially_enabled == False:
+            room_count[4] += 1
+        elif room.room_type == 'suite' and room.is_specially_enabled == True:
+            room_count[5] += 1
+
+    print(room_count)
+    available_rooms = room_count
+
+    # get reservations where check_in_date <= date and check_out_date >= date
+
+    reservations = Reservation.query.filter(Reservation.check_in_date <= date, Reservation.check_out_date > date).all()
+    print(reservations)
+    for reservation in reservations:
+        print(reservation)
+        print(reservation.room_type, reservation.specially_enabled_room_required)
+        print()
+
+        if reservation.room_type == 'Double Bed' and reservation.specially_enabled_room_required == False:
+            available_rooms[0] -= 1
+        elif reservation.room_type == 'Double Bed' and reservation.specially_enabled_room_required == True:
+            available_rooms[1] -= 1
+        elif reservation.room_type == 'Twin Bed' and reservation.specially_enabled_room_required == False:
+            available_rooms[2] -= 1
+        elif reservation.room_type == 'Twin Bed' and reservation.specially_enabled_room_required == True:
+            available_rooms[3] -= 1
+        elif reservation.room_type == 'Suite' and reservation.specially_enabled_room_required == False:
+            available_rooms[4] -= 1
+        elif reservation.room_type == 'Suite' and reservation.specially_enabled_room_required == True:
+            available_rooms[5] -= 1
+
+    print(available_rooms)
+    return render_template('room_availability_by_date.html', available_rooms=available_rooms, date=date)
 
 # ROUTES FOR FEEDBACK
 
@@ -634,3 +802,4 @@ def feedback():
     elif sorting_method == 'rating_asc':
         feedbacks = Feedback.query.order_by(Feedback.star_rating.asc()).all()
     return render_template('feedback.html', feedbacks=feedbacks)
+

@@ -25,33 +25,79 @@
            
         <h1>Your Reservations</h1>
 
-            <div style="overflow: auto;">
-                <table>
-                    <tr>
-                        <th>ID</th>
-                        <th>People</th>
-                        <th>Check-in Date</th>
-                        <th>Check-out Date</th>
-                        <th>Room Type</th>
-                        <th>Special Room Required</th>
-                        <th>Comments</th>
-                    </tr>
-                        
-                    {% for member_reservation in member_reservations %}
-                    <tr style="text-align: center;">
-                        <td>{{ member_reservation.reservation_id }}</td>
-                        <td>{{ member_reservation.number_of_people }}</td>
-                        <td>{{ member_reservation.check_in_date }}</td>
-                        <td>{{ member_reservation.check_out_date }}</td>
-                        <td>{{ member_reservation.room_type }}</td>
-                        <td>{{ member_reservation.specially_enabled_room_required }}</td>
-                        <td>{{ member_reservation.comments }}</td>
-                    </tr>
-                    {% endfor %}
+        {% if confirmed_reservations or unconfirmed_reservations %}
 
-                </table>
-                
-            </div>
+            <h2> Confirmed </h2>
+            {% if confirmed_reservations %}
+
+                <div style="overflow: auto;">
+                    <table>
+                        <tr>
+                            <th>ID</th>
+                            <th>People</th>
+                            <th>Check-in Date</th>
+                            <th>Check-out Date</th>
+                            <th>Room Type</th>
+                            <th>Special Room Required</th>
+                            <th>Comments</th>
+                        </tr>
+                            
+                        {% for member_reservation in confirmed_reservations %}
+                        <tr style="text-align: center;">
+                            <td>{{ member_reservation.reservation_id }}</td>
+                            <td>{{ member_reservation.number_of_people }}</td>
+                            <td>{{ member_reservation.check_in_date }}</td>
+                            <td>{{ member_reservation.check_out_date }}</td>
+                            <td>{{ member_reservation.room_type }}</td>
+                            <td>{{ member_reservation.specially_enabled_room_required }}</td>
+                            <td>{{ member_reservation.comments }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    </table>          
+                </div>
+
+            {% else %}
+                <p>No confirmed reservations</p>
+            {% endif %}
+
+            <h2> Unconfirmed </h2>
+            {% if unconfirmed_reservations %}
+
+                <div style="overflow: auto;">
+                    <table>
+                        <tr>
+                            <th>ID</th>
+                            <th>People</th>
+                            <th>Check-in Date</th>
+                            <th>Check-out Date</th>
+                            <th>Room Type</th>
+                            <th>Special Room</th>
+                            <th>Comments</th>
+                        </tr>
+                            
+                        {% for member_reservation in unconfirmed_reservations %}
+                        <tr style="text-align: center;">
+                            <td>{{ member_reservation.reservation_id }}</td>
+                            <td>{{ member_reservation.number_of_people }}</td>
+                            <td>{{ member_reservation.check_in_date }}</td>
+                            <td>{{ member_reservation.check_out_date }}</td>
+                            <td>{{ member_reservation.room_type }}</td>
+                            <td>{{ member_reservation.specially_enabled_room_required }}</td>
+                            <td>{{ member_reservation.comments }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    </table>          
+                </div>
+
+            {% else %}
+                <p>No unconfirmed reservations</p>
+            {% endif %}
+        
+        {% else %}
+            <p>No reservations have been made by you.</p>
+        {% endif %}
 
         {% endblock %}
 

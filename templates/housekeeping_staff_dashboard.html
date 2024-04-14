@@ -9,7 +9,8 @@
     <nav>
         <ul>
             <li><a href="{{ url_for('housekeeping_staff_dashboard') }}">Home</a></li>
-            <li><a href="{{ url_for('housekeeping_staff_dashboard.view') }}">Assigned Requests</a></li>
+            <li><a href="{{ url_for('housekeeping_staff_dashboard.view_room_cleaning_request') }}">Room Cleaning</a></li>
+            <li><a href="{{ url_for('housekeeping_staff_dashboard.view_other_request') }}">Other Requests</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
         </ul>
     </nav>
@@ -23,7 +24,7 @@
         {% endwith %}
         {% block content %}
             <h1>Welcome to the Guesthouse Management System</h1>
-            <p>Please click on Assigned Requests to View/Close the requests </p>
+            <p>Please click on Room Cleaning and Other Requests to View/Close the requests </p>
         {% endblock %}
     </main>
     <script src="{{ url_for('static', filename='../static/scripts.js') }}"></script>

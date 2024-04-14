@@ -1,0 +1,16 @@
+{% extends 'hospitality_staff_dashboard.html' %}
+
+{% block content %}
+
+<h2> Check Room Availability: </h2>
+
+<p> Enter the date below: </p>
+
+<form method="POST" >
+    <input type="date" name="date" required>
+    <button type="submit">Check Availability</button>
+</form>
+
+
+
+{% endblock %}

@@ -14,6 +14,7 @@
             <li><a href="{{ url_for('hospitality_staff_dashboard.travel_requests') }}">Travel Request</a></li>
             <li><a href="{{ url_for('hospitality_staff_dashboard.maintenance_request_view') }}">Maintenance Request</a></li>
             <li><a href="{{ url_for('hospitality_staff_dashboard.booking') }}">Reservations</a></li>
+            <li><a href="{{ url_for('hospitality_staff_dashboard.room_availibility') }}">Room Availability</a></li>
             <li><a href="{{ url_for('hospitality_staff_dashboard.billing') }}">Billing</a></li>
             <li><a href="{{ url_for('hospitality_staff_dashboard.feedback') }}">Feedback</a></li>
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
@@ -28,10 +29,10 @@
             {% endif %}
         {% endwith %}
         {% block content %}
-            <h1>Landed on hospitality_staff dashboard!</h1>
-            
+            <h2>Welcome, {{ current_user.first_name }}!</h2>
             <h2>Occupied Rooms</h2>
             
+            {% if currentguest %}
             <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center;">    
                 <table>
                     <thead style="position: sticky; top: 0; background-color: white;">
@@ -58,22 +59,33 @@
                     </tbody>
                 </table>
             </div>
-
+            {% else %}
+                <p>No occupied rooms right now.</p>
+            {% endif %}
 
             <h2>Assigned Open Maintenance Requests</h2>
-            <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center;">    
+            <h3> Check-Out Room Cleaning </h3>
+            {% if room_cleaning_requests %}
+            <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center; text-align: center;">    
                 <table>
+                    <colgroup>
+                        <col style="width: 30%;">
+                        <col style="width: 50%;">
+                        <col style="width: 30%;">
+                        <col style="width: 60%;">
+                        <col style="width: 30%;">
+                    </colgroup>
                     <thead style="position: sticky; top: 0; background-color: white;">
                         <tr>
                             <th>Request ID</th>
                             <th>Description</th>
-                            <th>Date when created</th>
+                            <th>Date created</th>
                             <th>Housekeeping Staff ID</th>
                             <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for request in assign_open_main_requests %}
+                        {% for request in room_cleaning_requests %}
                             <tr>
                                 <td>{{ request.request_id }}</td>
                                 <td>{{ request.description }}</td>
@@ -86,7 +98,50 @@
                 </table>
             </div>
 
-        {% endblock %}
+        {% else %}
+            <p>No check-out cleaning requests right now.</p>
+        {% endif %}
+
+
+        <h3> Other Maintenance Requests </h3>
+        {% if other_requests %}
+        <div style="overflow: auto; max-height: 400px; display: flex; justify-content: center; text-align: center;">    
+            <table>
+                <colgroup>
+                    <col style="width: 30%;">
+                    <col style="width: 50%;">
+                    <col style="width: 30%;">
+                    <col style="width: 60%;">
+                    <col style="width: 30%;">
+                </colgroup>
+                <thead style="position: sticky; top: 0; background-color: white;">
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Description</th>
+                        <th>Date when created</th>
+                        <th>Housekeeping Staff ID</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in other_requests %}
+                        <tr>
+                            <td>{{ request.request_id }}</td>
+                            <td>{{ request.description }}</td>
+                            <td>{{ request.date_created }}</td>
+                            <td>{{ request.housekeeping_staff_id }}</td>
+                            <td>{{ request.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <p>No other Maintenance requests right now.</p>
+    {% endif %}
+    
+    {% endblock %}
 
     </main>
     <script src="{{ url_for('static', filename='../static/scripts.js') }}"></script>

@@ -37,6 +37,10 @@ class Room(db.Model):
     is_specially_enabled = db.Column(db.Boolean)
     room_rent = db.Column(db.Integer, nullable=False)
     intercom_number = db.Column(db.String(10), unique=True)
+#----------------
+    check_out_cleaning = db.Column(db.Boolean)
+#----------------
+
 
 class hospitality_staff(db.Model):
     hospitality_staff_id = db.Column(db.Integer, primary_key=True)
@@ -94,7 +98,9 @@ class Reservation(db.Model):
     checked_in = db.Column(db.Boolean)
     checked_out = db.Column(db.Boolean)
     iitgn_id = db.Column(db.Integer, db.ForeignKey('iitgn_member.iitgn_id'))
-
+#----------------
+    confirmed = db.Column(db.Boolean)
+#----------------
 class Bill(db.Model):
     bill_id = db.Column(db.Integer, primary_key=True)
     date_created = db.Column(db.Date)
@@ -159,7 +165,7 @@ class Feedback(db.Model):
     date = db.Column(db.Date)
     star_rating = db.Column(db.Integer)
     feedback = db.Column(db.Text)
-    past_guest_id = db.Column(db.Integer, db.ForeignKey('past_guests.past_guest_id'), nullable=True)
+    guest_id = db.Column(db.Integer, nullable=False)
 
 class travel_request(db.Model):
     travel_request_id = db.Column(db.Integer, primary_key=True)
@@ -197,10 +203,11 @@ class Assignment(db.Model):
     reservation_id = db.Column(db.Integer, db.ForeignKey('reservation.reservation_id'))
     wifi_password = db.Column(db.String(20))
 
+#----------------
 class RequiresMaintenance(db.Model):
     request_id = db.Column(db.Integer, db.ForeignKey('maintenance_request.request_id'), primary_key=True)
     room_no = db.Column(db.Integer, db.ForeignKey('room.room_no'))
-    maintenance_request_open = db.Column(db.Boolean)
+#----------------
 
 class ManagesMaintenance(db.Model):
     request_id = db.Column(db.Integer, db.ForeignKey('maintenance_request.request_id'), primary_key=True)

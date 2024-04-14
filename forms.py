@@ -3,10 +3,10 @@ from wtforms import StringField, IntegerField, DateField, BooleanField, TextArea
 from wtforms.validators import DataRequired, Email, Length, ValidationError
 
 class BookingForm(FlaskForm):
-    number_of_people = IntegerField('Number of People', validators=[DataRequired()])
+    number_of_people = SelectField('Number of People',choices=[(1,1),(2,2)], validators=[DataRequired()])
     check_in_date = DateField('Check-in Date', validators=[DataRequired()])
     check_out_date = DateField('Check-out Date', validators=[DataRequired()])
-    room_type = SelectField('Room Type', choices=[('single', 'Single'), ('double', 'Double'), ('suite', 'Suite')], validators=[DataRequired()])
+    room_type = SelectField('Room Type', choices=[('double bed', 'double bed'), ('twin bed', 'twin bed'), ('suite', 'suite')], validators=[DataRequired()])
     specially_enabled_room_required = BooleanField('Specially Enabled Room Required')
     comments = TextAreaField('Comments')
     email_id = StringField('Email ID', validators=[DataRequired(), Email()])
@@ -14,16 +14,15 @@ class BookingForm(FlaskForm):
     submit = SubmitField('Submit')
 
 class BookingFormMember(FlaskForm):
-    number_of_people = IntegerField('Number of People', validators=[DataRequired()])
+    number_of_people = SelectField('Number of People',choices=[(1,1),(2,2)], validators=[DataRequired()])
     check_in_date = DateField('Check-in Date', validators=[DataRequired()])
     check_out_date = DateField('Check-out Date', validators=[DataRequired()])
-    room_type = SelectField('Room Type', choices=[('single', 'Single'), ('double', 'Double'), ('suite', 'Suite')], validators=[DataRequired()])
+    room_type = SelectField('Room Type', choices=[('double bed', 'double bed'), ('twin bed', 'twin bed'), ('suite', 'suite')], validators=[DataRequired()])
     specially_enabled_room_required = BooleanField('Specially Enabled Room Required')
     comments = TextAreaField('Comments')
     email_id = StringField('Email ID', validators=[DataRequired(), Email()])
+    iitgn_id = IntegerField('IITGN ID', validators=[DataRequired()])
     submit = SubmitField('Submit')
-
-
 
 class CheckInForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
@@ -106,3 +105,8 @@ class ChangePassword(FlaskForm):
     def validate_confirm_password(self, field):
         if field.data != self.new_password.data:
             raise ValidationError('Passwords do not match')
+
+class FeedbackForm(FlaskForm):
+    feedback = TextAreaField('Feedback', validators=[DataRequired()])
+    star_rating = SelectField('Star Rating', choices=[(5,5),(4,4),(3,3),(2,2),(1,1)], validators=[DataRequired()])
+    submit = SubmitField('Submit')

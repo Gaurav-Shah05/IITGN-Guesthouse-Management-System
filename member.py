@@ -35,6 +35,7 @@ def new_booking():
             email_id = form.email_id.data,
             checked_in = False,
             checked_out = False,
+            confirmed = False,
             iitgn_id = iitgn_id
         )
         db.session.add(new_reservation)
@@ -47,7 +48,7 @@ def new_booking():
         db.session.add(makes)
         db.session.commit()
 
-        flash(f'Booking successful! Reservation ID: {new_reservation.reservation_id}', 'success')
+        flash(f'Booking Request made successfully! Reservation ID: {new_reservation.reservation_id}', 'success')
         return redirect(url_for('iitgn_member_dashboard.new_booking'))
     else:
         print(form.errors)
