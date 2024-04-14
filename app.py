@@ -24,7 +24,6 @@ app.register_blueprint(Driver, url_prefix='/')
 
 app.config['SECRET_KEY'] = 'abc'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqldb://root:asterix@localhost/guesthouse_db'
-app.config['SERVER_NAME'] = 'localhost:5000'
 
 
 db.init_app(app)
@@ -86,8 +85,8 @@ def login():
     return render_template('login.html', form=form)
 
 # #Add lines form the doc
-# GOOGLE_CLIENT_ID = <>
-# GOOGLE_CLIENT_SECRET = <>
+GOOGLE_CLIENT_ID = "765986257146-bc8cb5lv7iu0ki1437lr9o9ag8ggcd9n.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET = "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"
    
 CONF_URL = "https://accounts.google.com/.well-known/openid-configuration"
 oauth.register(
