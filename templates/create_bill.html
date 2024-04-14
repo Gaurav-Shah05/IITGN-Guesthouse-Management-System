@@ -1,47 +1,50 @@
 {% extends 'hospitality_staff_dashboard.html' %}
 
 {% block content %}
-    <h1>Create Bill</h1>
-    <form method="POST">
+    <h2 class="text-center">Generate Bill</h2>
+    <div class="mt-4">
+        <form method="POST">
     
-        {{ form.csrf_token }}
-        <p>
-        {{ form.guest_id.label}}{{ form.guest_id }}
-        </p>
-        <p>
-        {{ form.amount.label }}{{ form.amount }}
-        </p>
-        <p>
-            {{ form.bill_type.label }}
-            <select name="{{ form.bill_type.name }}">
-                <option value="Room">Room</option>
-                <option value="Food">Food</option>
-                <option value="Travel">Travel</option>
-                <option value="Other">Other</option>
-            </select>
-        </p>
-        <p>
-            {{ form.paid_status.label }}{{ form.paid_status}}
-        </p>
-        <p>
-            {{ form.payment_method.label }}<br>
-            <select name="{{ form.payment_method.name }}">
-                <option value="" selected disabled>Select payment method</option>
-                <option value="Cash">Cash</option>
-                <option value="Debit Card">Debit Card</option>
-                <option value="Credit Card">Credit Card</option>
-                <option value="Net Banking">Net Banking</option>
-                <option value="UPI">UPI</option>
-            </select>
-        </p>
-        <p>
-            {{ form.generated_by.label }}<br>
-            {{ form.generated_by(size=32) }}
-        </p>
-        <p>
-            {{ form.description.label }}<br>
-            {{ form.description(size=32) }}
-        </p>
-        <p> {{ form.submit() }}</p>
-    </form>
+            {{ form.csrf_token }}
+            <p>
+            {{ form.guest_id.label}} {{ form.guest_id }}
+            </p>
+            <p>
+            {{ form.amount.label }} {{ form.amount }}
+            </p>
+            <p>
+                {{ form.bill_type.label }}
+                <select name="{{ form.bill_type.name }}">
+                    <option value="Room">Room</option>
+                    <option value="Food">Food</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Other">Other</option>
+                </select>
+            </p>
+            <p>
+                {{ form.paid_status.label }}{{ form.paid_status}}
+            </p>
+            <p>
+                {{ form.payment_method.label }}<br>
+                <select name="{{ form.payment_method.name }}">
+                    <option value="" selected disabled>Select payment method</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Debit Card">Debit Card</option>
+                    <option value="Credit Card">Credit Card</option>
+                    <option value="Net Banking">Net Banking</option>
+                    <option value="UPI">UPI</option>
+                </select>
+            </p>
+            <p>
+                {{ form.generated_by.label }}<br>
+                {{ form.generated_by(size=32) }}
+            </p>
+            <p>
+                {{ form.description.label }}<br>
+                {{ form.description(size=32) }}
+            </p>
+            <p> {{ form.submit() }}</p>
+        </form>
+    </div>
+    
 {% endblock %}

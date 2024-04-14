@@ -1,10 +1,10 @@
 {% extends 'hospitality_staff_dashboard.html' %}
 {% block content %}
 
-<h2>Assign the Travel Requests</h2>
+<h2 class="text-center mt-3">Assign the Travel Requests</h2>
 
-<div style="overflow: auto; max-height: 400px;">
-    <table>
+<div style="overflow: auto; max-height: 400px;" class="mt-3">
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Driver License</th>
@@ -31,7 +31,10 @@
                 <td>{{ pending_requests_by_driver_license[loop.index0] }}</td>
                 <td>
                     <form method="post" action="{{ url_for('hospitality_staff_dashboard.driver_assign', travel_request_id=request_id, driver_license = driver.driver_license) }}">
+                       <div class="text-center mt-3">
                         <input type="submit" value="Assign">
+                       </div>
+                        
                     </form>
                 </td>
             </tr>

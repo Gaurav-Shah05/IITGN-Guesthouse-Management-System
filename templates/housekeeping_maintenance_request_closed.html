@@ -1,11 +1,10 @@
 {% extends 'housekeeping_staff_dashboard.html' %}
+{% block content %}
 
-{% block content %} 
-
-<h1>Assigned Requests</h1>
-    
+<h2>Check Out Cleaning</h2>
 {% if assigned %}
-    <table>
+<div style="overflow: auto; max-height: 600px;">
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Request ID</th>
@@ -23,7 +22,7 @@
                     <td>{{ request.time_created }}</td>
                     <td>{{ request.description }}</td>
                     <td>
-                        <form method="post" action="{{ url_for('housekeeping_staff_dashboard.close', request_id=request.request_id) }}">
+                        <form method="post" action="{{ url_for('housekeeping_staff_dashboard.close_room_cleaning_request', request_id=request.request_id) }}">
                             <input type="submit" value="Close">
                         </form>
                     </td>
@@ -31,11 +30,15 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
 {% else %}
-    <p>No requests assigned yet.</p>
+    <p>No check-out cleaning requests assigned yet.</p>
 {% endif %}
 
+<br>
+
 <button onclick="goBack()">Go Back</button>
+
 <script>
     function goBack() {
       window.history.back();
