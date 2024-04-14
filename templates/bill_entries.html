@@ -1,13 +1,13 @@
 {% extends 'hospitality_staff_dashboard.html' %}
 {% block content %}
 
-<h1> Billings </h1>
+<h2 class="text-centered"> Billings </h2>
 
-<h2>Unpaid Bills:</h2>
+<h2 class="mt-4">Unpaid Bills:</h2>
 
 {% if unpaid_bills %}
 <div>
-    <table>
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Bill ID</th>
@@ -50,10 +50,10 @@
     <p>No unpaid bills.</p>
 {% endif %}
 
-<h2>Paid Bills:</h2>
+<h2 class="mt-4">Paid Bills:</h2>
 {% if paid_bills %}
 <div style="overflow: auto; height: 300px;">
-    <table>
+    <table class="table table-bordered table-striped"> 
         <thead>
             <tr>
                 <th>Bill ID</th>

@@ -1,11 +1,11 @@
 {% extends 'hospitality_staff_dashboard.html' %}
 {% block content %}
 
-<h1>Check-out's Today:</h1>
+<h2>Check-out's Today:</h2>
 
 {% if current_guests %}
 <div style="overflow: auto; height: 300px;">
-    <table>
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Guest ID</th>
@@ -34,15 +34,32 @@
 
 
 {% else %}
-    <p>No check-out's today.</p>
+    <p>No Scheduled check-out's today.</p>
 {% endif %}
 
-<h1>Check-out:</h1>
+<h2 class="text-center">Check-out:</h2>
 
 <form method="POST" action="{{ url_for ('hospitality_staff_dashboard.check_out') }}">
-    {{ form.csrf_token }}
-    {{ form.guest_id.label }} {{ form.guest_id() }}
-    {{ form.submit() }}
+    <div class="row justify-content-center mt-3">
+        <div >
+            <div class="card mt-3">
+                <div class="card-body">
+                    {{ form.csrf_token }}
+                    <div class="text-center">
+                        {{ form.guest_id.label }} {{ form.guest_id() }} <br>
+                    <div class="mt-3">
+                        {{ form.submit() }}
+                    </div>
+                       
+                    </div>
+                   
+                  
+                    
+                </div>
+              </div>
+        </div>
+    </div>
+    
 </form>
 
 {% endblock %}

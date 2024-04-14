@@ -1,10 +1,24 @@
 {% extends 'index.html' %}
 {% block content %}
-    <h1>Login</h1>
+    
+
+    <div class="row justify-content-center mt-3">
+      <div class="col-lg-4">
+        <!-- Login box -->
+        <div class="card shadow">
+          <div class="card-body">
+            <h3 class="text-center">Login</h3>
     <form method="POST" action="{{ url_for('login') }}">
         {{ form.csrf_token }}
         {{ form.email.label }} {{ form.email }}
         {{ form.password.label }} {{ form.password }}
-        {{ form.submit }}
+        <div class="text-center">
+            {{ form.submit }}
+        </div>
+        
     </form>
+          </div>
+        </div>
+      </div>
+    </div>
 {% endblock %}

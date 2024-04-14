@@ -2,12 +2,21 @@
 
 {% block content %}
 
-<h1>Maintenance Request Form</h1>
-<form method="POST" action="{{ url_for('current_guest_dashboard.guest_maintenance_request') }}">
-    {{ form.csrf_token }}
-    {{ form.description.label }} {{ form.description() }}
-    {{ form.submit() }}
-</form>
+<h2 class="text-center">Maintenance Request Form</h2>
+<div class="row justify-content-center mt-3">
+    <div class="col-lg-4">
+        <div class="card mt-5">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('current_guest_dashboard.guest_maintenance_request') }}">
+                    {{ form.csrf_token }}
+                    {{ form.description.label }} {{ form.description() }}
+                    {{ form.submit() }}
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 
 {% endblock %}

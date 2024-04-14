@@ -1,0 +1,48 @@
+{% extends 'iitgn_member_dashboard.html' %}
+{% block content %}
+
+<h1>Make a Reservation</h1>
+    <form method="POST" action="{{ url_for('iitgn_member_dashboard.booking') }}">
+        {{ form.csrf_token }}
+        <!-- {{ form.number_of_people.label }} {{ form.number_of_people }}
+        {{ form.check_in_date.label }} {{ form.check_in_date }}
+        {{ form.check_out_date.label }} {{ form.check_out_date }}
+        {{ form.room_type.label }} {{ form.room_type }}
+        {{ form.specially_enabled_room_required.label }} {{ form.specially_enabled_room_required }}
+        {{ form.comments.label }} {{ form.comments }}
+        {{ form.submit }} -->
+        <div class="row">
+            <div class="col">
+                {{ form.number_of_people.label }} {{ form.number_of_people }}
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.check_in_date.label }} {{ form.check_in_date }}
+            </div>
+            <div class="col">
+                {{ form.check_out_date.label }} {{ form.check_out_date }}
+            </div>
+            <div class="col">
+                {{ form.room_type.label }} {{ form.room_type }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.specially_enabled_room_required.label }} {{ form.specially_enabled_room_required }}
+            </div>
+            
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.comments.label }} {{ form.comments }}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                {{ form.submit }}
+            </div>
+        </div>
+    </form>
+{% endblock %}

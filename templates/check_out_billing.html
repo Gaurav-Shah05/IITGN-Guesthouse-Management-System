@@ -1,13 +1,13 @@
 {% extends 'hospitality_staff_dashboard.html' %}
 {% block content %}
 
-<h1> Check-Out Billings </h1>
+<h1 class="text-center"> Check-Out Billings </h1>
 
 <h2>Paid Bills:</h2>
 
 {% if paid_bills %}
 <div style="overflow: auto; height: 300px;">
-    <table>
+    <table class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Bill ID</th>
